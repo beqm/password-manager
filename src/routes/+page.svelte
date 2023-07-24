@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 </script>
 
-<h1>Welcome to SvelteKit</h1>
+<h1 class="">All items</h1>
