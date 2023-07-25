@@ -2,6 +2,9 @@
 	let cFocus = '';
 	let cFocusInput = '';
 
+	let isCtrlPressed = false;
+	let isKPressed = false;
+
 	const addFocusEffect = () => {
 		cFocus = 'border-primary-200 bg-primary-700';
 		cFocusInput = 'bg-primary-700';
@@ -11,7 +14,49 @@
 		cFocus = '';
 		cFocusInput = '';
 	};
+
+	function onBind() {
+		const searchBar = document.getElementById('search-bar');
+		if (searchBar) {
+			searchBar.focus();
+		}
+	}
+
+	function onKeyDown(event: KeyboardEvent) {
+		if (event.repeat) return;
+		switch (event.key) {
+			case 'Control':
+				isCtrlPressed = true;
+				event.preventDefault();
+				break;
+
+			case 'k':
+				isKPressed = true;
+				event.preventDefault();
+				break;
+		}
+
+		if (isCtrlPressed && isKPressed) {
+			onBind();
+		}
+	}
+
+	function onKeyUp(event: KeyboardEvent) {
+		switch (event.key) {
+			case 'Control':
+				isCtrlPressed = false;
+				event.preventDefault();
+				break;
+
+			case 'k':
+				isKPressed = false;
+				event.preventDefault();
+				break;
+		}
+	}
 </script>
+
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <div
 	class={`${cFocus} border duration-200 border-primary-500 rounded-md p-2 w-[60%] mb-4 flex justify-center items-center bg-primary-500`}
@@ -28,6 +73,7 @@
 	>
 
 	<input
+		id="search-bar"
 		on:focusin={addFocusEffect}
 		on:focusout={removeFocusEffect}
 		type="text"
