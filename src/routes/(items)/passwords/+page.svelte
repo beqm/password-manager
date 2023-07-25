@@ -29,7 +29,7 @@
 
 <div class="flex justify-center h-full">
 	<div class="w-[90%]">
-		<div class="flex mt-20 items-center">
+		<div class="flex mt-20 h-[5%] items-center">
 			<h1 class="flex text-3xl font-bold">Passwords</h1>
 			<button
 				class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[150px] ml-auto border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"

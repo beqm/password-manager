@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
 	import type { Item } from '$lib/types/types';
-
+	export let resultQuery: string | undefined = undefined;
 	const sampleWithlink: Item = {
 		title: 'google',
 		content: 'password123',
@@ -17,24 +17,13 @@
 		lastModified: '01/01/2023'
 	};
 
-	const data = [
-		sampleWithlink,
-		sampleWithlink,
-		sampleWithlink,
-		sampleWithoutlink,
-		sampleWithoutlink,
-		sampleWithoutlink
-	];
+	const data = [sampleWithlink];
 </script>
 
 <div class="flex justify-center h-full">
 	<div class="w-[90%]">
 		<div class="flex mt-20 h-[5%] items-center">
-			<h1 class="flex text-3xl font-bold">Notes</h1>
-			<button
-				class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] ml-auto border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
-				>Add Note</button
-			>
+			<h1 class="flex text-3xl font-bold">Results</h1>
 		</div>
 		<div class="w-full mt-10 drop-shadow-xl bg-secondary-900 h-[70%] rounded-md">
 			<div
@@ -47,7 +36,11 @@
 			</div>
 			<div class="h-[90%] min-h-[200px] overflow-y-scroll">
 				{#each data as item}
-					<TableItem data={item} />
+					{#if resultQuery && item.title.includes(resultQuery)}
+						<TableItem data={item} />
+					{:else}
+						<h1 class="flex text-3xl font-bold w-full justify-center mt-10">No Results</h1>
+					{/if}
 				{/each}
 			</div>
 		</div>

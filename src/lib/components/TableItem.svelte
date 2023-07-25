@@ -4,7 +4,7 @@
 	export let data: Item;
 </script>
 
-<button class="flex w-full items-center justify-evenly">
+<button class=" flex w-full items-center justify-evenly hover:bg-primary-800 duration-200">
 	<div class="w-[20%] ml-2 p-4 overflow-hidden">{data.title}</div>
 	<div class="w-[20%] ml-2 p-4">{data.lastModified}</div>
 	<div class="w-[20%] ml-2 p-4">{data.lastUsed}</div>

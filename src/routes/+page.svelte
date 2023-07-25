@@ -22,14 +22,13 @@
 		sampleWithlink,
 		sampleWithlink,
 		sampleWithoutlink,
-		sampleWithoutlink,
 		sampleWithoutlink
 	];
 </script>
 
 <div class="flex justify-center h-full">
 	<div class="w-[90%]">
-		<div class="flex mt-20 items-center">
+		<div class="flex mt-20 h-[5%] items-center">
 			<h1 class="flex text-3xl font-bold">All items</h1>
 			<button
 				class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] ml-auto border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
@@ -56,16 +55,16 @@
 
 <style>
 	div::-webkit-scrollbar {
-		width: 12px; /* width of the entire scrollbar */
+		width: 12px;
 	}
 
 	div::-webkit-scrollbar-track {
-		background: none; /* color of the tracking area */
+		background: none;
 	}
 
 	div::-webkit-scrollbar-thumb {
 		background-color: #3c3d5d;
-		border-radius: 20px; /* roundness of the scroll thumb */
-		border: 3px solid #1e1f2f; /* creates padding around scroll thumb */
+		border-radius: 20px;
+		border: 3px solid #1e1f2f;
 	}
 </style>

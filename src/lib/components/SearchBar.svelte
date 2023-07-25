@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-
 	let cFocus = '';
 	let cFocusInput = '';
+	export let resultQuery: string | undefined = undefined;
 
 	let isCtrlPressed = false;
 	let isKPressed = false;
@@ -21,20 +20,6 @@
 		const searchBar = document.getElementById('search-bar');
 		if (searchBar) {
 			searchBar.focus();
-		}
-	};
-
-	const onEnter = (event: KeyboardEvent) => {
-		if (event.repeat) return;
-
-		switch (event.key) {
-			case 'Enter':
-				const searchBar = document.getElementById('search-bar') as HTMLInputElement;
-				if (searchBar.value == '') {
-					goto('/');
-				} else {
-					goto('/results');
-				}
 		}
 	};
 
@@ -89,7 +74,7 @@
 	>
 
 	<input
-		on:keydown={onEnter}
+		bind:value={resultQuery}
 		id="search-bar"
 		on:focusin={addFocusEffect}
 		on:focusout={removeFocusEffect}
