@@ -11,6 +11,11 @@
   },
   "tauri": {
     "allowlist": {
+      "clipboard": {
+        "all": true,
+        "writeText": true,
+        "readText": true
+      },
       "all": false
     },
     "bundle": {
@@ -56,9 +61,11 @@
       {
         "fullscreen": false,
         "height": 720,
+        "minHeight": 600,
         "resizable": true,
         "title": "password-manager",
-        "width": 1138
+        "width": 1138,
+        "minWidth": 800
       }
     ]
   }

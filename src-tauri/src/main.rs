@@ -2,18 +2,13 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
-
-#[tauri::command]
-fn sum(x: u32, y: u32) -> u32 {
-    x + y
+fn launch_website(url: String) -> () {
+    let _ = open::that(url);
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, sum])
+        .invoke_handler(tauri::generate_handler![launch_website])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -30,11 +30,7 @@
 <div class="flex justify-center h-full">
 	<div class="w-[90%]">
 		<div class="flex mt-20 items-center">
-			<h1 class="flex text-3xl font-bold">Notes</h1>
-			<button
-				class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] ml-auto border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
-				>Add Note</button
-			>
+			<h1 class="flex text-3xl font-bold">Results</h1>
 		</div>
 		<div class="w-full mt-10 drop-shadow-xl bg-secondary-900 h-[70%] rounded-md">
 			<div

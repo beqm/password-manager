@@ -16,7 +16,7 @@ const config = {
       'primary-700': '#3c3d5d',
       'primary-800': '#28293e',
       'primary-900': '#14141f',
-      'primary-1000': '#14141f',
+      'primary-1000': '#0f0f18',
 
       'secondary-100': '#eff0f5',
       'secondary-200': '#d0d1e1',
@@ -32,6 +32,7 @@ const config = {
     textColor: {
       'dark': '#f2f3f8',
       'light': '#050505',
+      'hover': '#c1c2d7',
     },
     borderColor: {
       'primary-100': '#e0e0eb',

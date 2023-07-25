@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	let cFocus = '';
 	let cFocusInput = '';
 
@@ -15,14 +17,28 @@
 		cFocusInput = '';
 	};
 
-	function onBind() {
+	const onBind = () => {
 		const searchBar = document.getElementById('search-bar');
 		if (searchBar) {
 			searchBar.focus();
 		}
-	}
+	};
 
-	function onKeyDown(event: KeyboardEvent) {
+	const onEnter = (event: KeyboardEvent) => {
+		if (event.repeat) return;
+
+		switch (event.key) {
+			case 'Enter':
+				const searchBar = document.getElementById('search-bar') as HTMLInputElement;
+				if (searchBar.value == '') {
+					goto('/');
+				} else {
+					goto('/results');
+				}
+		}
+	};
+
+	const onKeyDown = (event: KeyboardEvent) => {
 		if (event.repeat) return;
 		switch (event.key) {
 			case 'Control':
@@ -39,9 +55,9 @@
 		if (isCtrlPressed && isKPressed) {
 			onBind();
 		}
-	}
+	};
 
-	function onKeyUp(event: KeyboardEvent) {
+	const onKeyUp = (event: KeyboardEvent) => {
 		switch (event.key) {
 			case 'Control':
 				isCtrlPressed = false;
@@ -53,13 +69,13 @@
 				event.preventDefault();
 				break;
 		}
-	}
+	};
 </script>
 
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <div
-	class={`${cFocus} border duration-200 border-primary-500 rounded-md p-2 w-[60%] mb-4 flex justify-center items-center bg-primary-500`}
+	class={`${cFocus} border duration-200 border-primary-500 rounded-md p-2 w-[60%] max-w-[150px] mb-4 flex justify-center items-center bg-primary-500`}
 >
 	<svg
 		class="mr-2 w-1/3"
@@ -73,6 +89,7 @@
 	>
 
 	<input
+		on:keydown={onEnter}
 		id="search-bar"
 		on:focusin={addFocusEffect}
 		on:focusout={removeFocusEffect}

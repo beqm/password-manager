@@ -1,37 +1,42 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import { page } from '$app/stores';
 	let showItems: boolean;
 	let showTools: boolean;
 
-	let cHome = 'flex p-4 items-center hover:bg-primary-800';
+	let cHome = 'flex p-4 items-center bg-primary-600';
 	let cPasswords = 'flex p-4 items-center hover:bg-primary-800';
 	let cNotes = 'flex p-4 items-center hover:bg-primary-800';
 	let cGenerator = 'flex p-4 items-center hover:bg-primary-800';
 
-	type Pages = 'home' | 'passwords' | 'notes' | 'generator';
-	const toggleActivePage = (name: Pages) => {
-		if (name == 'home') {
+	$: {
+		if ($page.url.pathname == '/') {
 			cHome = 'flex p-4 items-center bg-primary-600';
 			cPasswords = 'flex p-4 items-center hover:bg-primary-800';
 			cNotes = 'flex p-4 items-center hover:bg-primary-800';
 			cGenerator = 'flex p-4 items-center hover:bg-primary-800';
-		} else if (name == 'passwords') {
+		} else if ($page.url.pathname == '/passwords') {
 			cHome = 'flex p-4 items-center hover:bg-primary-800';
 			cPasswords = 'flex p-4 items-center bg-primary-600';
 			cNotes = 'flex p-4 items-center hover:bg-primary-800';
 			cGenerator = 'flex p-4 items-center hover:bg-primary-800';
-		} else if (name == 'notes') {
+		} else if ($page.url.pathname == '/notes') {
 			cHome = 'flex p-4 items-center hover:bg-primary-800';
 			cPasswords = 'flex p-4 items-center hover:bg-primary-800';
 			cNotes = 'flex p-4 items-center bg-primary-600';
 			cGenerator = 'flex p-4 items-center hover:bg-primary-800';
-		} else if (name == 'generator') {
+		} else if ($page.url.pathname == '/generator') {
 			cHome = 'flex p-4 items-center hover:bg-primary-800';
 			cPasswords = 'flex p-4 items-center hover:bg-primary-800';
 			cNotes = 'flex p-4 items-center hover:bg-primary-800';
 			cGenerator = 'flex p-4 items-center bg-primary-600';
+		} else {
+			cHome = 'flex p-4 items-center hover:bg-primary-800';
+			cPasswords = 'flex p-4 items-center hover:bg-primary-800';
+			cNotes = 'flex p-4 items-center hover:bg-primary-800';
+			cGenerator = 'flex p-4 items-center hover:bg-primary-800';
 		}
-	};
+	}
 
 	const toggleItemDropdown = () => {
 		showItems = !showItems;
@@ -61,7 +66,7 @@
 	</button>
 	{#if showItems}
 		<div transition:slide class="w-full">
-			<a on:click={() => toggleActivePage('home')} class={cHome} href="/">
+			<a class={cHome} href="/">
 				<svg
 					class="w-[10%]"
 					fill="currentColor"
@@ -74,7 +79,7 @@
 				>
 				<span class="ml-2 flex">All Items</span>
 			</a>
-			<a on:click={() => toggleActivePage('passwords')} class={cPasswords} href="passwords">
+			<a class={cPasswords} href="passwords">
 				<svg
 					class="w-[10%]"
 					fill="currentColor"
@@ -87,7 +92,7 @@
 				>
 				<span class="ml-2 flex">Passwords</span>
 			</a>
-			<a on:click={() => toggleActivePage('notes')} class={cNotes} href="notes">
+			<a class={cNotes} href="notes">
 				<svg
 					class="w-[10%]"
 					fill="currentColor"
@@ -123,7 +128,7 @@
 	</button>
 	{#if showTools}
 		<div transition:slide class="w-full">
-			<a on:click={() => toggleActivePage('generator')} class={cGenerator} href="/generator">
+			<a class={cGenerator} href="/generator">
 				<svg
 					class="w-[10%]"
 					fill="currentColor"
