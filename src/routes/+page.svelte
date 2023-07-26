@@ -35,16 +35,16 @@
 				>Add Item</button
 			>
 		</div>
-		<div class="w-full mt-10 drop-shadow-xl bg-secondary-900 h-[70%] rounded-md">
+		<div class="w-full mt-10 drop-shadow-xl h-[70%] rounded-md">
 			<div
-				class="flex items-center bg-primary-800 rounded-t-md text-sm lg:text-lg drop-shadow-lg h-[10%] font-bold text-center justify-evenly"
+				class="flex items-center border-b border-primary-800 rounded-t-md text-sm lg:text-lg drop-shadow-lg h-[10%] font-bold text-center justify-evenly"
 			>
 				<div class="w-[20%] p-2">Title</div>
 				<div class="w-[20%] p-2">Last Modified</div>
 				<div class="w-[20%] p-2">Last Used</div>
 				<div class="w-[15%] p-2" />
 			</div>
-			<div class="h-[90%] min-h-[200px] overflow-y-scroll">
+			<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">
 				{#each data as item}
 					<TableItem data={item} />
 				{/each}
@@ -63,8 +63,8 @@
 	}
 
 	div::-webkit-scrollbar-thumb {
-		background-color: #3c3d5d;
+		background-color: #28293e;
 		border-radius: 20px;
-		border: 3px solid #1e1f2f;
+		border: 3px solid #0f0f18;
 	}
 </style>

@@ -24,9 +24,3 @@
 		<slot />
 	</PageWrapper>
 </div>
-
-<style>
-	::-webkit-scrollbar {
-		display: none;
-	}
-</style>
