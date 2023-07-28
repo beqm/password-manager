@@ -7,10 +7,6 @@
 	import { localToStore } from '$lib/utils';
 	import SettingStore from '$lib/stores/SettingStore';
 	let resultQuery: string | undefined = undefined;
-
-	onMount(() => {
-		localToStore(SettingStore, 'settings');
-	});
 </script>
 
 <div class="flex text-dark">

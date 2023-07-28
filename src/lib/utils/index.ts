@@ -15,6 +15,7 @@ export function localToStore(store: Writable<Settings>, key: string) {
 	if (result !== null) {
 		store.set(result);
 	} else {
+		console.log('default');
 		store.set({
 			length: 16,
 			upper: false,

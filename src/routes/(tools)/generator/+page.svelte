@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { generatePassword } from '$lib/utils';
+	import { generatePassword, localToStore } from '$lib/utils';
 	import { onMount } from 'svelte';
 	import TableBtn from '$lib/components/TableBtn.svelte';
 	import type { Settings } from '$lib/types/types';
@@ -24,18 +24,21 @@
 	};
 
 	const update = async () => {
-		if ($SettingStore) {
-			$SettingStore.length = length;
-			$SettingStore.upper = upper;
-			$SettingStore.number = number;
-			$SettingStore.symbol = symbol;
+		$SettingStore.length = length;
+		$SettingStore.upper = upper;
+		$SettingStore.number = number;
+		$SettingStore.symbol = symbol;
 
-			localStorage.setItem('settings', JSON.stringify($SettingStore));
-			password = await generatePassword($SettingStore);
-		}
+		localStorage.setItem('settings', JSON.stringify($SettingStore));
+		password = await generatePassword($SettingStore);
 	};
 
-	onMount(async () => {
+	onMount(() => {
+		localToStore(SettingStore, 'settings');
+		length = $SettingStore.length;
+		upper = $SettingStore.upper;
+		number = $SettingStore.number;
+		symbol = $SettingStore.symbol;
 		update();
 	});
 </script>
