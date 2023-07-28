@@ -3,18 +3,78 @@
 	import { onMount } from 'svelte';
 	import TableBtn from '$lib/components/TableBtn.svelte';
 
+	type Settings = {
+		length: number;
+		upper: boolean;
+		number: boolean;
+		symbol: boolean;
+	};
+
+	let settings: Settings | null = null;
+
 	let password: string = '';
 	let length: number = 16;
 	let upper: boolean = false;
 	let number: boolean = false;
 	let symbol: boolean = false;
 
+	const getSettings = async () => {
+		let result = JSON.parse(localStorage.getItem('gen_settings') || '{}');
+
+		if (JSON.stringify(result) !== '{}') {
+			length = result.length;
+			upper = result.upper;
+			number = result.number;
+			symbol = result.symbol;
+		} else if (result) {
+			length = 16;
+			upper = false;
+			number = false;
+			symbol = false;
+		}
+
+		result = {
+			length,
+			upper,
+			number,
+			symbol
+		};
+
+		return result;
+	};
+
+	const toggleBtn = (name: string) => {
+		if (name == 'upper') {
+			upper = !upper;
+		} else if (name == 'number') {
+			number = !number;
+		} else if (name == 'symbol') {
+			symbol = !symbol;
+		}
+
+		update();
+	};
 	const update = async () => {
-		password = await generatePassword(length, upper, number, symbol);
+		if (settings) {
+			settings.length = length;
+			settings.upper = upper;
+			settings.number = number;
+			settings.symbol = symbol;
+
+			localStorage.setItem('gen_settings', JSON.stringify(settings));
+
+			password = await generatePassword(
+				settings.length,
+				settings.upper,
+				settings.number,
+				settings.symbol
+			);
+		}
 	};
 
 	onMount(async () => {
-		await update();
+		settings = await getSettings();
+		update();
 	});
 </script>
 
@@ -31,20 +91,20 @@
 					<div class="p-2 w-full h-full xl:flex xl:justify-center xl:items-center break-words">
 						{password}
 					</div>
-				</div>
-				<div class="flex justify-end text-sm w-[60%]">
-					<TableBtn message="Copy" content={password}>
-						<svg
-							class="hover:text-hover"
-							fill="currentColor"
-							xmlns="http://www.w3.org/2000/svg"
-							height="1.2em"
-							viewBox="0 0 512 512"
-							><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path
-								d="M272 0H396.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H272c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128H192v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"
-							/></svg
-						>
-					</TableBtn>
+					<div class="flex justify-end text-sm w-full">
+						<TableBtn message="Copy" content={password}>
+							<svg
+								class="hover:text-hover"
+								fill="currentColor"
+								xmlns="http://www.w3.org/2000/svg"
+								height="1.2em"
+								viewBox="0 0 512 512"
+								><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path
+									d="M272 0H396.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H272c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128H192v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"
+								/></svg
+							>
+						</TableBtn>
+					</div>
 				</div>
 
 				<div class="flex flex-col mt-10 w-[60%]">
@@ -65,7 +125,7 @@
 						<input
 							class="bg-secondary-800 ml-auto outline-none border border-secondary-800 focus:bg-secondary-900 rounded-md h-fit p-2"
 							type="checkbox"
-							on:click={update}
+							on:click={() => toggleBtn('upper')}
 							bind:checked={upper}
 						/>
 					</div>
@@ -75,7 +135,7 @@
 						<input
 							class="bg-secondary-800 ml-auto outline-none border border-secondary-800 focus:bg-secondary-900 rounded-md h-fit p-2"
 							type="checkbox"
-							on:click={update}
+							on:click={() => toggleBtn('number')}
 							bind:checked={number}
 						/>
 					</div>
@@ -85,7 +145,7 @@
 						<input
 							class="bg-secondary-800 ml-auto outline-none border border-secondary-800 focus:bg-secondary-900 rounded-md h-fit p-2"
 							type="checkbox"
-							on:click={update}
+							on:click={() => toggleBtn('symbol')}
 							bind:checked={symbol}
 						/>
 					</div>
