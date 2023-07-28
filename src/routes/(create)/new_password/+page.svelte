@@ -2,6 +2,8 @@
 	import { afterNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import { generatePassword } from '$lib/utils';
+	import SettingStore from '$lib/stores/SettingStore';
 
 	let title: string = '';
 	let websiteUrl: string = '';
@@ -49,8 +51,8 @@
 		goto(previousPage);
 	};
 
-	const generatePassword = () => {
-		password = 'example';
+	const callGenerate = async () => {
+		password = await generatePassword($SettingStore);
 	};
 </script>
 
@@ -108,7 +110,7 @@
 								bind:value={password}
 							/>
 							<button
-								on:click={generatePassword}
+								on:click={callGenerate}
 								class="mr-auto mt-2 text-sm text-hover hover:text-accent">Generate Password</button
 							>
 						</div>

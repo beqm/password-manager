@@ -3,7 +3,14 @@
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import NavItems from '$lib/components/NavItems.svelte';
 	import PageWrapper from '$lib/components/PageWrapper.svelte';
+	import { onMount } from 'svelte';
+	import { localToStore } from '$lib/utils';
+	import SettingStore from '$lib/stores/SettingStore';
 	let resultQuery: string | undefined = undefined;
+
+	onMount(() => {
+		localToStore(SettingStore, 'settings');
+	});
 </script>
 
 <div class="flex text-dark">

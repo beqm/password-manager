@@ -5,3 +5,10 @@ export type Item = {
 	lastUsed: string;
 	lastModified: string;
 };
+
+export type Settings = {
+	length: number;
+	upper: boolean;
+	number: boolean;
+	symbol: boolean;
+};

@@ -2,46 +2,14 @@
 	import { generatePassword } from '$lib/utils';
 	import { onMount } from 'svelte';
 	import TableBtn from '$lib/components/TableBtn.svelte';
-
-	type Settings = {
-		length: number;
-		upper: boolean;
-		number: boolean;
-		symbol: boolean;
-	};
-
-	let settings: Settings | null = null;
+	import type { Settings } from '$lib/types/types';
+	import SettingStore from '$lib/stores/SettingStore';
 
 	let password: string = '';
 	let length: number = 16;
 	let upper: boolean = false;
 	let number: boolean = false;
 	let symbol: boolean = false;
-
-	const getSettings = async () => {
-		let result = JSON.parse(localStorage.getItem('gen_settings') || '{}');
-
-		if (JSON.stringify(result) !== '{}') {
-			length = result.length;
-			upper = result.upper;
-			number = result.number;
-			symbol = result.symbol;
-		} else if (result) {
-			length = 16;
-			upper = false;
-			number = false;
-			symbol = false;
-		}
-
-		result = {
-			length,
-			upper,
-			number,
-			symbol
-		};
-
-		return result;
-	};
 
 	const toggleBtn = (name: string) => {
 		if (name == 'upper') {
@@ -54,34 +22,31 @@
 
 		update();
 	};
+
 	const update = async () => {
-		if (settings) {
-			settings.length = length;
-			settings.upper = upper;
-			settings.number = number;
-			settings.symbol = symbol;
+		if ($SettingStore) {
+			$SettingStore.length = length;
+			$SettingStore.upper = upper;
+			$SettingStore.number = number;
+			$SettingStore.symbol = symbol;
 
-			localStorage.setItem('gen_settings', JSON.stringify(settings));
-
-			password = await generatePassword(
-				settings.length,
-				settings.upper,
-				settings.number,
-				settings.symbol
-			);
+			localStorage.setItem('settings', JSON.stringify($SettingStore));
+			password = await generatePassword($SettingStore);
 		}
 	};
 
 	onMount(async () => {
-		settings = await getSettings();
 		update();
 	});
 </script>
 
 <div class="flex justify-center h-full">
 	<div class="w-[90%]">
-		<div class="flex mt-20 h-[5%] items-center justify-center">
+		<div class="flex flex-col mt-20 h-[5%] items-center justify-center">
 			<h1 class="flex text-3xl font-bold">Password Generator</h1>
+			<span class="mt-2 text-hover text-sm"
+				>Your configuration here affects password generations in the app</span
+			>
 		</div>
 		<div class="w-full mt-10 drop-shadow-xl h-[70%] rounded-md">
 			<div class="flex flex-col text-lg w-full h-full items-center">
