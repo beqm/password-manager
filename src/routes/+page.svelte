@@ -1,6 +1,7 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
 	import type { Item } from '$lib/types/types';
+	import { fade } from 'svelte/transition';
 
 	const sampleWithlink: Item = {
 		title: 'google',
@@ -17,6 +18,11 @@
 		lastModified: '01/01/2023'
 	};
 
+	let showItemMenu: boolean;
+	const toggleItemOptions = () => {
+		showItemMenu = !showItemMenu;
+	};
+
 	const data = [
 		sampleWithlink,
 		sampleWithlink,
@@ -30,10 +36,22 @@
 	<div class="w-[90%]">
 		<div class="flex mt-20 h-[5%] items-center">
 			<h1 class="flex text-3xl font-bold">All items</h1>
-			<button
-				class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] ml-auto border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
-				>Add Item</button
-			>
+			<div class="ml-auto relative">
+				<button
+					on:click={toggleItemOptions}
+					class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
+					>Add Item</button
+				>
+				{#if showItemMenu}
+					<div
+						transition:fade={{ duration: 100 }}
+						class="flex flex-col absolute bg-primary-900 border border-primary-700 mt-1 right-0 w-[200px] z-10"
+					>
+						<a href="new_password" class="hover:bg-primary-700 p-2">New Password</a>
+						<a href="new_note" class="hover:bg-primary-700 p-2">New Note</a>
+					</div>
+				{/if}
+			</div>
 		</div>
 		<div class="w-full mt-10 drop-shadow-xl h-[70%] rounded-md">
 			<div
