@@ -1,12 +1,36 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use rand::prelude::SliceRandom;
 use tauri::Manager;
 use tauri::{CustomMenuItem, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem};
-
 #[tauri::command]
 fn launch_website(url: String) -> () {
     let _ = open::that(url);
+}
+
+#[tauri::command]
+fn generate_password(length: u32, upper: bool, numbers: bool, symbols: bool) -> String {
+    let mut chars: Vec<char> = Vec::new();
+    chars.extend('a'..='z');
+
+    if upper {
+        chars.extend('A'..='Z');
+    }
+
+    if numbers {
+        chars.extend('0'..='9');
+    }
+
+    if symbols {
+        chars.extend("!@#$%^&*()_+-=[]{}|;':,./<>?".chars());
+    }
+
+    let password: String = (0..length)
+        .map(|_| *chars.choose(&mut rand::thread_rng()).unwrap())
+        .collect();
+
+    password
 }
 
 fn main() {
@@ -43,7 +67,7 @@ fn main() {
             },
             _ => {}
         })
-        .invoke_handler(tauri::generate_handler![launch_website])
+        .invoke_handler(tauri::generate_handler![launch_website, generate_password])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| match event {
