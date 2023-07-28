@@ -141,6 +141,8 @@
 				>
 				<span class="ml-2 flex">Password Generator</span>
 			</a>
+			<a href="login">login</a>
+			<a href="register">register</a>
 		</div>
 	{/if}
 </div>
