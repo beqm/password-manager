@@ -4,6 +4,7 @@
 	import { slide } from 'svelte/transition';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
 	import TableBtn from '$lib/components/TableBtn.svelte';
+	import { onMount } from 'svelte';
 
 	let username: string = '';
 	let password: string = '';
@@ -130,6 +131,13 @@
 			}
 		}
 	};
+
+	onMount(() => {
+		let client = localStorage.getItem('client');
+		if (client) {
+			goto('/');
+		}
+	});
 </script>
 
 <div

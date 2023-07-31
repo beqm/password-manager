@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { invoke } from '@tauri-apps/api';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
+	import type { Client, TauriResponse } from '$lib/types/types';
+	import { onMount } from 'svelte';
 
 	let username: string = '';
 	let cUser: string = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';
@@ -39,7 +42,7 @@
 		}
 	};
 
-	const handleLogin = () => {
+	const handleLogin = async () => {
 		let canRegister: boolean = false;
 
 		if (validateUserEmpty()) {
@@ -55,9 +58,34 @@
 		}
 
 		if (canRegister) {
-			goto('/');
+			let result: string = await invoke('login', { username, masterPassword: password });
+			let data: TauriResponse = JSON.parse(result);
+
+			if (data.status === 400) {
+				cUser =
+					'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
+				cPasswordError = 'text-error';
+				cPassword =
+					'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
+				cPasswordMsg = 'Username or password incorrect';
+			}
+
+			if (data.status === 200 && data.data) {
+				let clientData: Client = {
+					id: data.data.id,
+					username: data.data.username
+				};
+				localStorage.setItem('client', JSON.stringify(clientData));
+			}
 		}
 	};
+
+	onMount(() => {
+		let client = localStorage.getItem('client');
+		if (client) {
+			goto('/');
+		}
+	});
 </script>
 
 <div

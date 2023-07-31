@@ -30,6 +30,21 @@ pub fn create_client(conn: &mut SqliteConnection, username: &str, master_passwor
         .expect("Error creating new client")
 }
 
+#[derive(Debug)]
+pub enum ClientError {
+    ClientNotFound,
+}
+pub fn get_client(conn: &mut SqliteConnection, user: &str) -> Result<Client, ClientError> {
+    use crate::schema::client::dsl::*;
+
+    let result = client.filter(username.eq(user)).select(Client::as_select()).first(conn);
+
+    match result {
+        Ok(c) => return Ok(c),
+        Err(_) => return Err(ClientError::ClientNotFound),
+    }
+}
+
 pub fn generate_recovery_code() -> String {
     use base32::Alphabet;
     use rand::Rng;

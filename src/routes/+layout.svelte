@@ -6,7 +6,15 @@
 	import { onMount } from 'svelte';
 	import { localToStore } from '$lib/utils';
 	import SettingStore from '$lib/stores/SettingStore';
+	import { goto } from '$app/navigation';
 	let resultQuery: string | undefined = undefined;
+
+	onMount(() => {
+		let client = localStorage.getItem('client');
+		if (!client) {
+			goto('/login');
+		}
+	});
 </script>
 
 <div class="flex text-dark">

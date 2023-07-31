@@ -12,3 +12,13 @@ export type Settings = {
 	number: boolean;
 	symbol: boolean;
 };
+
+export type Client = {
+	id: number;
+	username: string;
+};
+
+export type TauriResponse = {
+	data: Client | null;
+	status: number;
+};
