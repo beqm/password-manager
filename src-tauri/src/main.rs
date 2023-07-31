@@ -1,9 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use crate::models::Client;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use db::{create_client, establish_connection, get_client};
+use db::{create_client, get_client, update_master_password};
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
@@ -35,8 +34,6 @@ pub fn generate_recovery_code() -> String {
 
 #[tauri::command]
 fn register(username: &str, master_password: &str) -> String {
-    let mut conn = establish_connection();
-
     use argon2::{
         password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
         Argon2,
@@ -51,7 +48,7 @@ fn register(username: &str, master_password: &str) -> String {
     argon2 = Argon2::default();
     let recovery_hash = argon2.hash_password(recovery_code.as_bytes(), &salt).unwrap().to_string();
 
-    let result = create_client(&mut conn, &username, &password_hash, &recovery_hash);
+    let result = create_client(&username, &password_hash, &recovery_hash);
     match result {
         Some(_) => serde_json::to_string(&TauriResponse::<String> {
             data: recovery_code.to_string(),
@@ -64,9 +61,7 @@ fn register(username: &str, master_password: &str) -> String {
 
 #[tauri::command]
 fn login(username: &str, master_password: &str) -> String {
-    let mut conn = establish_connection();
-
-    let result = get_client(&mut conn, &username);
+    let result = get_client(&username);
     match result {
         Ok(c) => {
             let parsed_hash = PasswordHash::new(&c.master_password).unwrap();
@@ -84,20 +79,40 @@ fn login(username: &str, master_password: &str) -> String {
 
 #[tauri::command]
 fn verify_recovery_code(username: &str, recovery_code: &str) -> String {
-    let mut conn = establish_connection();
-
-    let result = get_client(&mut conn, &username);
+    let result = get_client(&username);
     match result {
         Ok(c) => {
             let parsed_hash = PasswordHash::new(&c.recovery_code).unwrap();
             let recovery_match = Argon2::default().verify_password(recovery_code.as_bytes(), &parsed_hash).is_ok();
 
             if recovery_match {
-                serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 200 }).unwrap()
+                serde_json::to_string(&TauriResponse::<Option<String>> {
+                    data: Some(c.username),
+                    status: 200,
+                })
+                .unwrap()
             } else {
                 serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap()
             }
         },
+        Err(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
+}
+
+#[tauri::command]
+fn change_password(username: &str, master_password: &str) -> String {
+    use argon2::{
+        password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
+        Argon2,
+    };
+
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let password_hash = argon2.hash_password(master_password.as_bytes(), &salt).unwrap().to_string();
+    let result = update_master_password(&username, &password_hash);
+
+    match result {
+        Ok(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 200 }).unwrap(),
         Err(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
 }
@@ -160,7 +175,7 @@ fn main() {
             },
             _ => {},
         })
-        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login, verify_recovery_code])
+        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login, verify_recovery_code, change_password])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| match event {

@@ -39,7 +39,7 @@
 	/>
 	<span class={cError}>{msg}</span>
 	{#if visibility}
-		<button on:click={hidePassword}>
+		<button tabindex="-1" on:click={hidePassword}>
 			<svg
 				class="absolute right-[10px] top-[12px] hover:text-hover"
 				fill="currentColor"
@@ -52,7 +52,7 @@
 			>
 		</button>
 	{:else}
-		<button on:click={showPassword}>
+		<button tabindex="-1" on:click={showPassword}>
 			<svg
 				class="absolute right-[10px] top-[12px] hover:text-hover"
 				fill="currentColor"

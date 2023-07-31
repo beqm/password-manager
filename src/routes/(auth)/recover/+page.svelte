@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { TauriResponse } from '$lib/types/types';
+	import { invoke } from '@tauri-apps/api';
 
 	let username: string = '';
 	let cUser: string = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';
@@ -9,19 +11,19 @@
 	let recoveryCode: string = '';
 	let cRecover: string = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';
 	let cRecoverError: string = 'invisible';
-	let cCreateBtn: string = 'bg-primary-700 border-primary-700 cursor-default';
+	let cRecoverMsg: string = 'This field cannot be empty!';
 
 	const validateRecoverEmpty = () => {
 		if (recoveryCode.length == 0) {
 			cRecoverError = 'text-error';
 			cRecover =
 				'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
-			cCreateBtn = 'bg-primary-700 border-primary-700 cursor-default';
+
 			return false;
 		} else {
 			cRecoverError = 'invisible';
 			cRecover = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';
-			cCreateBtn = 'bg-primary-600 border-primary-700 active:scale-90';
+
 			return true;
 		}
 	};
@@ -41,7 +43,7 @@
 		}
 	};
 
-	const handleLogin = () => {
+	const handleLogin = async () => {
 		let validRecoveryCode: boolean = false;
 
 		if (validateUserEmpty()) {
@@ -57,12 +59,22 @@
 		}
 
 		if (validRecoveryCode) {
-			goto('/login');
-		}
-	};
+			let result: string = await invoke('verify_recovery_code', { username, recoveryCode });
+			let data: TauriResponse = JSON.parse(result);
+			if (data.status == 200) {
+				console.log(data);
+				await localStorage.setItem('temp_value', data.data);
+				goto('/recover/change_password');
+			}
 
-	const bindValue = (e: any) => {
-		recoveryCode = e.target.value;
+			if (data.status == 400) {
+				cRecoverError = 'text-error';
+				cRecover =
+					'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
+
+				cRecoverMsg = 'Incorrect Recovery Code!';
+			}
+		}
 	};
 </script>
 
@@ -87,7 +99,7 @@
 				placeholder="Username"
 				bind:value={username}
 			/>
-			<span class={`${cUserError}`}>This field cannot be empty!</span>
+			<span class={`${cUserError}`}>{cUserMsg}</span>
 			<input
 				on:keyup={validateRecoverEmpty}
 				class={`${cRecover} w-full outline-none border mt-2 rounded-md mb-2 h-fit p-2`}
@@ -95,12 +107,17 @@
 				placeholder="Recovery Code"
 				bind:value={recoveryCode}
 			/>
-			<span class={`${cRecoverError}`}>This field cannot be empty!</span>
+			<span class={`${cRecoverError}`}>{cRecoverMsg}</span>
 		</div>
 		<div class="w-full flex justify-end">
+			<a
+				href="/login"
+				class="bg-primary-600 w-[25%] max-w-[100px] mr-4 text-center border-primary-700 active:scale-90 hover:bg-primary-700 border duration-200 rounded-md p-2"
+				>Back</a
+			>
 			<button
 				type="submit"
-				class={`${cCreateBtn} hover:bg-primary-700 border duration-200 border-primary-200 rounded-md p-2 bg-primary-500`}
+				class="bg-primary-600 w-[25%] max-w-[100px] text-center border-primary-700 active:scale-90 hover:bg-primary-700 border duration-200 rounded-md p-2"
 				>Enter</button
 			>
 		</div>

@@ -215,7 +215,7 @@
 			<div class="w-full flex justify-end">
 				<button
 					type="submit"
-					class="bg-primary-600 border-primary-700 active:scale-90 hover:bg-primary-700 border duration-200 rounded-md p-2"
+					class="bg-primary-600 w-[25%] max-w-[100px] text-center border-primary-700 active:scale-90 hover:bg-primary-700 border duration-200 rounded-md p-2"
 					>Create</button
 				>
 			</div>
