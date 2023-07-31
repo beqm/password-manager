@@ -47,9 +47,9 @@
 	};
 </script>
 
-<div class="flex flex-col w-full">
+<div class="flex flex-col w-full border-b border-primary-800">
 	<button on:click={toggleItemDropdown} class="flex w-full p-2">
-		<span class="ml-2 flex text-sm w-[95%]">Items</span>
+		<span class="ml-2 flex text-sm xl:text-lg w-[95%]">Items</span>
 		{#if showItems}
 			<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"
 				><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path
@@ -109,9 +109,9 @@
 	{/if}
 </div>
 
-<div class="flex flex-col w-full">
+<div class="flex flex-col w-full border-b border-primary-800">
 	<button on:click={toggleToolsDropdown} class="flex w-full p-2">
-		<span class="ml-2 flex text-sm w-[95%]">Tools</span>
+		<span class="ml-2 flex text-sm xl:text-lg w-[95%]">Tools</span>
 		{#if showTools}
 			<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"
 				><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path
@@ -141,8 +141,6 @@
 				>
 				<span class="ml-2 flex">Password Generator</span>
 			</a>
-			<a href="login">login</a>
-			<a href="register">register</a>
 		</div>
 	{/if}
 </div>

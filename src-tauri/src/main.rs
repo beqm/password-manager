@@ -6,13 +6,32 @@ use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use db::{create_client, establish_connection, get_client};
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use tauri::Manager;
 use tauri::{CustomMenuItem, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem};
 
 mod db;
 mod models;
 mod schema;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TauriResponse<T> {
+    data: T,
+    status: u32,
+}
+
+pub fn generate_recovery_code() -> String {
+    use base32::Alphabet;
+    use rand::Rng;
+    use sha2::{Digest, Sha256};
+
+    let alphabet = Alphabet::RFC4648 { padding: false };
+    let random_bytes: Vec<u8> = (0..1000).map(|_| rand::thread_rng().gen::<u8>()).collect();
+    let mut hasher = Sha256::new();
+    hasher.update(random_bytes);
+    let hash = hasher.finalize();
+
+    base32::encode(alphabet, &hash)
+}
 
 #[tauri::command]
 fn register(username: &str, master_password: &str) -> String {
@@ -23,21 +42,24 @@ fn register(username: &str, master_password: &str) -> String {
         Argon2,
     };
 
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
+    let mut salt = SaltString::generate(&mut OsRng);
+    let mut argon2 = Argon2::default();
     let password_hash = argon2.hash_password(master_password.as_bytes(), &salt).unwrap().to_string();
 
-    let result = create_client(&mut conn, &username, &password_hash);
-    match result {
-        Some(c) => return format!("{}", c.recovery_code),
-        None => return format!("Username already taken!",),
-    }
-}
+    let recovery_code = generate_recovery_code();
+    salt = SaltString::generate(&mut OsRng);
+    argon2 = Argon2::default();
+    let recovery_hash = argon2.hash_password(recovery_code.as_bytes(), &salt).unwrap().to_string();
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct TauriResponse {
-    data: Option<Client>,
-    status: u32,
+    let result = create_client(&mut conn, &username, &password_hash, &recovery_hash);
+    match result {
+        Some(_) => serde_json::to_string(&TauriResponse::<String> {
+            data: recovery_code.to_string(),
+            status: 200,
+        })
+        .unwrap(),
+        None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
 }
 
 #[tauri::command]
@@ -53,10 +75,30 @@ fn login(username: &str, master_password: &str) -> String {
             if password_match {
                 serde_json::to_string(&TauriResponse { data: Some(c), status: 200 }).unwrap()
             } else {
-                serde_json::to_string(&TauriResponse { data: None, status: 400 }).unwrap()
+                serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap()
             }
         },
-        Err(_) => serde_json::to_string(&TauriResponse { data: None, status: 400 }).unwrap(),
+        Err(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
+}
+
+#[tauri::command]
+fn verify_recovery_code(username: &str, recovery_code: &str) -> String {
+    let mut conn = establish_connection();
+
+    let result = get_client(&mut conn, &username);
+    match result {
+        Ok(c) => {
+            let parsed_hash = PasswordHash::new(&c.recovery_code).unwrap();
+            let recovery_match = Argon2::default().verify_password(recovery_code.as_bytes(), &parsed_hash).is_ok();
+
+            if recovery_match {
+                serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 200 }).unwrap()
+            } else {
+                serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap()
+            }
+        },
+        Err(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
 }
 
@@ -118,7 +160,7 @@ fn main() {
             },
             _ => {},
         })
-        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login])
+        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login, verify_recovery_code])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| match event {

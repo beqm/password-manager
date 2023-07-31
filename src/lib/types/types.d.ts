@@ -19,6 +19,6 @@ export type Client = {
 };
 
 export type TauriResponse = {
-	data: Client | null;
+	data: any;
 	status: number;
 };

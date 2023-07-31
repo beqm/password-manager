@@ -18,9 +18,6 @@
 	};
 
 	const data = [
-		sampleWithlink,
-		sampleWithlink,
-		sampleWithlink,
 		sampleWithoutlink,
 		sampleWithoutlink,
 		sampleWithoutlink,
@@ -45,7 +42,7 @@
 			>
 				<div class="w-[20%] p-2">Title</div>
 				<div class="w-[20%] p-2">Last Modified</div>
-				<div class="w-[20%] p-2">Last Used</div>
+				<div class="w-[20%] p-2">Created</div>
 				<div class="w-[15%] p-2" />
 			</div>
 			<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">

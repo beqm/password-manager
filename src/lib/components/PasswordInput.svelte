@@ -31,13 +31,13 @@
 
 <div class="relative mt-2">
 	<input
-		class={`${cInput} w-full outline-none border rounded-md h-fit p-2`}
+		class={`${cInput} w-full outline-none border mb-2 rounded-md h-fit p-2`}
 		{type}
 		{placeholder}
 		on:keyup={handleKeyUpEvent}
 		on:input={bindPassValue}
 	/>
-	<span class={`${cError} mt-2`}>{msg}</span>
+	<span class={cError}>{msg}</span>
 	{#if visibility}
 		<button on:click={hidePassword}>
 			<svg

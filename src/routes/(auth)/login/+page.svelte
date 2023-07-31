@@ -76,16 +76,17 @@
 					username: data.data.username
 				};
 				localStorage.setItem('client', JSON.stringify(clientData));
+				goto('/');
 			}
 		}
 	};
 
-	onMount(() => {
-		let client = localStorage.getItem('client');
-		if (client) {
-			goto('/');
-		}
-	});
+	// onMount(() => {
+	// 	let client = localStorage.getItem('client');
+	// 	if (client) {
+	// 		goto('/');
+	// 	}
+	// });
 </script>
 
 <div
@@ -103,12 +104,12 @@
 			<a class="text-hover text-xs hover:text-dark" href="recover">Forgot Master Password?</a>
 			<input
 				on:keyup={validateUserEmpty}
-				class={`${cUser} w-full outline-none border rounded-md  h-fit p-2`}
+				class={`${cUser} w-full outline-none border rounded-md mt-2 mb-2  h-fit p-2`}
 				type="text"
 				placeholder="Username"
 				bind:value={username}
 			/>
-			<span class={`${cUserError} mt-2 `}>{cUserMsg}</span>
+			<span class={cUserError}>{cUserMsg}</span>
 
 			<PasswordInput
 				on:keyup={validatePasswordEmpty}

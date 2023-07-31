@@ -60,7 +60,7 @@
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <div
-	class={`${cFocus} border duration-200 border-primary-500 rounded-md p-2 w-[60%] max-w-[150px] mb-4 flex justify-center items-center bg-primary-500`}
+	class={`${cFocus} border duration-200 border-primary-400 p-2 w-[60%] flex justify-center items-center bg-primary-600`}
 >
 	<svg
 		class="mr-2 w-1/3"
@@ -80,6 +80,6 @@
 		on:focusout={removeFocusEffect}
 		type="text"
 		placeholder="Ctrl+K"
-		class={`${cFocusInput} duration-200 w-[70%] outline-none bg-primary-500`}
+		class={`${cFocusInput} duration-200 w-full outline-none bg-primary-600`}
 	/>
 </div>

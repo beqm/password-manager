@@ -25,15 +25,17 @@
 		<div class="flex mt-20 h-[5%] items-center">
 			<h1 class="flex text-3xl font-bold">Results</h1>
 		</div>
-		<div class="w-full mt-10 drop-shadow-xl bg-secondary-900 h-[70%] rounded-md">
-			<div
-				class="flex items-center bg-primary-800 rounded-t-md text-sm lg:text-lg drop-shadow-lg h-[10%] font-bold text-center justify-evenly"
-			>
-				<div class="w-[20%] p-2">Title</div>
-				<div class="w-[20%] p-2">Last Modified</div>
-				<div class="w-[20%] p-2">Last Used</div>
-				<div class="w-[15%] p-2" />
-			</div>
+		<div class="w-full mt-10 drop-shadow-xl h-[70%] rounded-md">
+			{#if resultQuery}
+				<div
+					class="flex items-center rounded-t-md border-b border-primary-800 text-sm lg:text-lg drop-shadow-lg h-[10%] font-bold text-center justify-evenly"
+				>
+					<div class="w-[20%] p-2">Title</div>
+					<div class="w-[20%] p-2">Last Modified</div>
+					<div class="w-[20%] p-2">Created</div>
+					<div class="w-[15%] p-2" />
+				</div>
+			{/if}
 			<div class="h-[90%] min-h-[200px] overflow-y-scroll">
 				{#each data as item}
 					{#if resultQuery && item.title.includes(resultQuery)}

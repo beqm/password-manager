@@ -5,6 +5,7 @@
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
 	import TableBtn from '$lib/components/TableBtn.svelte';
 	import { onMount } from 'svelte';
+	import type { TauriResponse } from '$lib/types/types';
 
 	let username: string = '';
 	let password: string = '';
@@ -117,14 +118,16 @@
 
 		if (canRegister) {
 			let result: string = await invoke('register', { username, masterPassword: password });
-			if (result == 'Username already taken!') {
+			let data: TauriResponse = JSON.parse(result);
+			console.log(result);
+			if (data.status == 400) {
 				cUserError = 'text-error';
 				cUser =
 					'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
-				cUserMsg = result;
-			} else {
+				cUserMsg = 'Username already taken!';
+			} else if (data.status == 200) {
 				registered = true;
-				recoveryCode = result;
+				recoveryCode = data.data;
 				setInterval(() => {
 					timer -= 1;
 				}, 1000);
@@ -184,13 +187,13 @@
 
 			<div class="w-full">
 				<input
-					class={`${cUser} w-full outline-none border rounded-md h-fit p-2`}
+					class={`${cUser} w-full outline-none border rounded-md mb-2 h-fit p-2`}
 					type="text"
 					placeholder="Username"
 					on:keyup={validateUserEmpty}
 					bind:value={username}
 				/>
-				<span class={`${cUserError} mt-2 `}>{cUserMsg}</span>
+				<span class={cUserError}>{cUserMsg}</span>
 
 				<PasswordInput
 					on:keyup={validatePasswordEmpty}
