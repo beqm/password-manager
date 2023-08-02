@@ -38,10 +38,6 @@ pub enum ClientError {
     ClientNotFound,
 }
 
-#[derive(Debug)]
-pub enum ItemError {
-    EmptyItemsTable,
-}
 pub fn get_client(user: &str) -> Result<Client, ClientError> {
     use crate::schema::client::dsl::*;
 
@@ -72,6 +68,7 @@ pub fn update_master_password(user: &str, password: &str) -> Result<Client, Clie
 
 pub fn create_item(user_id: i32, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str) -> Option<Items> {
     use crate::schema::items;
+    use chrono::Local;
 
     let new_item = NewItem {
         title,
@@ -81,6 +78,8 @@ pub fn create_item(user_id: i32, title: &str, identify: &str, pass: &str, desc: 
         link,
         type_: _type,
         client_id: user_id,
+        created_at: Local::now().timestamp_millis(),
+        last_modified: Local::now().timestamp_millis(),
     };
 
     let mut conn = establish_connection();

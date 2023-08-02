@@ -2,12 +2,15 @@
 	import TableBtn from './TableBtn.svelte';
 	import type { Item } from '$lib/types/types';
 	export let data: Item;
+
+	let formatModified = new Date(data.last_modified).toLocaleDateString();
+	let formatCreated = new Date(data.created_at).toLocaleDateString();
 </script>
 
 <button class=" flex w-full items-center justify-evenly hover:bg-primary-800 duration-200">
 	<div class="w-[20%] ml-2 p-4 overflow-hidden">{data.title}</div>
-	<div class="w-[20%] ml-2 p-4">{data.lastModified}</div>
-	<div class="w-[20%] ml-2 p-4">{data.lastUsed}</div>
+	<div class="w-[20%] ml-2 p-4">{formatModified}</div>
+	<div class="w-[20%] ml-2 p-4">{formatCreated}</div>
 	<div class="w-[15%] ml-2 p-4 justify-end flex">
 		{#if data.link}
 			<TableBtn message="Launch" content={data.link} isLaunch={true}>

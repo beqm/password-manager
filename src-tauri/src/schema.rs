@@ -19,6 +19,8 @@ diesel::table! {
         link -> Nullable<Text>,
         #[sql_name = "type"]
         type_ -> Text,
+        created_at -> BigInt,
+        last_modified -> BigInt,
         client_id -> Integer,
     }
 }

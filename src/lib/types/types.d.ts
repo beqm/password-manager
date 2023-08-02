@@ -6,9 +6,8 @@ export type Item = {
 	description: string;
 	type_: string;
 	link?: string;
-
-	lastUsed: string;
-	lastModified: string;
+	created_at: number;
+	last_modified: number;
 };
 
 export type Settings = {

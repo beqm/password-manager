@@ -32,6 +32,8 @@ pub struct Items {
     pub description: Option<String>,
     pub link: Option<String>,
     pub type_: String,
+    pub created_at: i64,
+    pub last_modified: i64,
     pub client_id: i32,
 }
 
@@ -44,5 +46,7 @@ pub struct NewItem<'a> {
     pub description: &'a str,
     pub link: &'a str,
     pub type_: &'a str,
+    pub created_at: i64,
+    pub last_modified: i64,
     pub client_id: i32,
 }
