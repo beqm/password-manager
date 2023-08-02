@@ -5,6 +5,8 @@
 	import { generatePassword, localToStore } from '$lib/utils';
 	import SettingStore from '$lib/stores/SettingStore';
 	import { onMount } from 'svelte';
+	import { invoke } from '@tauri-apps/api';
+	import type { Client } from '$lib/types/types';
 
 	let title: string = '';
 	let websiteUrl: string = '';
@@ -41,24 +43,35 @@
 			cTitle =
 				'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
 			cCreateBtn = 'bg-primary-700 border-primary-700';
-			return true;
+			return false;
 		} else {
 			cErrorMsg = 'invisible';
 			cTitle = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';
 			cCreateBtn = 'bg-primary-600 border-primary-700 active:scale-90';
-			return false;
+			return true;
 		}
 	};
 
-	const createPassword = () => {
-		if (!validateTitle()) {
-			let passwordItem = {
-				title,
-				websiteUrl,
-				usernameOrEmail,
-				password
-			};
-			console.log(passwordItem);
+	const createPassword = async () => {
+		let canRegister: boolean = false;
+
+		if (validateTitle()) {
+			canRegister = true;
+		} else {
+			canRegister = false;
+		}
+
+		if (canRegister) {
+			let user: Client = JSON.parse(localStorage.getItem('client') || '');
+			await invoke('add_item', {
+				username: user.username,
+				identify: usernameOrEmail,
+				pass: password,
+				desc: websiteUrl,
+				type: 'password'
+			});
+			// TODO: Add item viewer and redirect to that later.
+			goto('/passwords');
 		}
 	};
 

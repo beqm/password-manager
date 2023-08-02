@@ -2,7 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use db::{create_client, get_client, update_master_password};
+use db::{create_client, create_item, get_client, update_master_password};
+use models::Items;
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
@@ -30,6 +31,17 @@ pub fn generate_recovery_code() -> String {
     let hash = hasher.finalize();
 
     base32::encode(alphabet, &hash)
+}
+
+#[tauri::command]
+fn add_item(username: &str, identify: &str, pass: &str, desc: &str, _type: &str) -> String {
+    let user = get_client(&username).unwrap();
+    let result = create_item(user.id, identify, pass, desc, _type);
+
+    match result {
+        Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
+        None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
 }
 
 #[tauri::command]
@@ -175,7 +187,7 @@ fn main() {
             },
             _ => {},
         })
-        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login, verify_recovery_code, change_password])
+        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login, verify_recovery_code, change_password, add_item])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| match event {

@@ -1,7 +1,8 @@
 use crate::models::Client;
+use crate::models::Items;
 use crate::models::NewClient;
+use crate::models::NewItem;
 use diesel::prelude::*;
-use diesel::update;
 use diesel::SqliteConnection;
 use dotenvy::dotenv;
 use std::env;
@@ -62,4 +63,25 @@ pub fn update_master_password(user: &str, password: &str) -> Result<Client, Clie
         Ok(c) => return Ok(c),
         Err(_) => return Err(ClientError::ClientNotFound),
     }
+}
+
+pub fn create_item(user_id: i32, identify: &str, pass: &str, desc: &str, _type: &str) -> Option<Items> {
+    use crate::schema::items;
+
+    let new_item = NewItem {
+        identifier: identify,
+        password: pass,
+        description: desc,
+        type_: _type,
+        client_id: user_id,
+    };
+
+    let mut conn = establish_connection();
+
+    diesel::insert_or_ignore_into(items::table)
+        .values(&new_item)
+        .returning(Items::as_returning())
+        .get_result(&mut conn)
+        .optional()
+        .expect("Error creating new Item")
 }
