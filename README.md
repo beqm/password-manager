@@ -1,5 +1,3 @@
-# Auth
-
 - [x] Integrate Diesel SQlite
 - [x] Register user
 - [x] Login User
@@ -9,3 +7,5 @@
 - [] Encrypt Sensitive Data
 - [] When clicking on a item on the table, show more info ( like a page for the item )
 - [] Everytime user opens app, if logged in asks for masterpassword
+- [] Looking up how to migrate in runtime to recreate database in need
+- [] How to import/export data so user can backup
