@@ -34,7 +34,12 @@
 	};
 
 	onMount(() => {
-		localToStore(SettingStore, 'settings');
+		localToStore(SettingStore, 'settings', {
+			length: 16,
+			upper: false,
+			number: false,
+			symbol: false
+		});
 		length = $SettingStore.length;
 		upper = $SettingStore.upper;
 		number = $SettingStore.number;

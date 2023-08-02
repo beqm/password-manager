@@ -73,7 +73,8 @@
 			if (data.status === 200 && data.data) {
 				let clientData: Client = {
 					id: data.data.id,
-					username: data.data.username
+					username: data.data.username,
+					items: data.data.items
 				};
 				await localStorage.setItem('client', JSON.stringify(clientData));
 				goto('/');

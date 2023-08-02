@@ -65,9 +65,11 @@
 			let user: Client = JSON.parse(localStorage.getItem('client') || '');
 			await invoke('add_item', {
 				username: user.username,
+				title,
 				identify: usernameOrEmail,
 				pass: password,
-				desc: websiteUrl,
+				desc: '',
+				link: websiteUrl,
 				type: 'password'
 			});
 			// TODO: Add item viewer and redirect to that later.
@@ -87,7 +89,12 @@
 	};
 
 	onMount(() => {
-		localToStore(SettingStore, 'settings');
+		localToStore(SettingStore, 'settings', {
+			length: 16,
+			upper: false,
+			number: false,
+			symbol: false
+		});
 	});
 </script>
 

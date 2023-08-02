@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use db::{create_client, create_item, get_client, update_master_password};
+use db::{create_client, create_item, get_client, get_items, update_master_password};
 use models::Items;
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,13 @@ mod schema;
 pub struct TauriResponse<T> {
     data: T,
     status: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TauriClient {
+    id: i32,
+    username: String,
+    items: Option<Vec<Items>>,
 }
 
 pub fn generate_recovery_code() -> String {
@@ -34,12 +41,22 @@ pub fn generate_recovery_code() -> String {
 }
 
 #[tauri::command]
-fn add_item(username: &str, identify: &str, pass: &str, desc: &str, _type: &str) -> String {
+fn add_item(username: &str, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str) -> String {
     let user = get_client(&username).unwrap();
-    let result = create_item(user.id, identify, pass, desc, _type);
+    let result = create_item(user.id, title, identify, pass, desc, link, _type);
 
     match result {
         Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
+        None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
+}
+
+#[tauri::command]
+fn fetch_items(user_id: i32) -> String {
+    let result = get_items(&user_id);
+
+    match result {
+        Some(i) => serde_json::to_string(&TauriResponse::<Vec<Items>> { data: i, status: 200 }).unwrap(),
         None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
 }
@@ -80,7 +97,19 @@ fn login(username: &str, master_password: &str) -> String {
             let password_match = Argon2::default().verify_password(master_password.as_bytes(), &parsed_hash).is_ok();
 
             if password_match {
-                serde_json::to_string(&TauriResponse { data: Some(c), status: 200 }).unwrap()
+                let items = get_items(&c.id);
+
+                let data = TauriClient {
+                    id: c.id,
+                    username: c.username,
+                    items,
+                };
+
+                serde_json::to_string(&TauriResponse {
+                    data: Some(data),
+                    status: 200,
+                })
+                .unwrap()
             } else {
                 serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap()
             }
@@ -187,7 +216,9 @@ fn main() {
             },
             _ => {},
         })
-        .invoke_handler(tauri::generate_handler![launch_website, generate_password, register, login, verify_recovery_code, change_password, add_item])
+        .invoke_handler(tauri::generate_handler![
+            launch_website, generate_password, register, login, verify_recovery_code, change_password, add_item, fetch_items
+        ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|app, event| match event {

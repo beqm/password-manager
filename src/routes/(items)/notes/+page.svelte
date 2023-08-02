@@ -1,29 +1,18 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
-	import type { Item } from '$lib/types/types';
+	import ClientStore from '$lib/stores/ClientStore';
+	import type { TauriResponse } from '$lib/types/types';
+	import { localToStore } from '$lib/utils';
+	import { invoke } from '@tauri-apps/api';
+	import { onMount } from 'svelte';
 
-	const sampleWithlink: Item = {
-		title: 'google',
-		content: 'password123',
-		link: 'https://www.google.com/',
-		lastUsed: '02/01/2023',
-		lastModified: '01/01/2023'
-	};
-
-	const sampleWithoutlink: Item = {
-		title: 'notes',
-		content: 'password123',
-		lastUsed: '02/01/2023',
-		lastModified: '01/01/2023'
-	};
-
-	const data = [
-		sampleWithoutlink,
-		sampleWithoutlink,
-		sampleWithoutlink,
-		sampleWithoutlink,
-		sampleWithoutlink
-	];
+	onMount(async () => {
+		await localToStore(ClientStore, 'client', {});
+		let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
+		let data: TauriResponse = JSON.parse(items);
+		$ClientStore.items = data.data;
+		await localStorage.setItem('client', JSON.stringify($ClientStore));
+	});
 </script>
 
 <div class="flex justify-center h-full">
@@ -46,9 +35,13 @@
 				<div class="w-[15%] p-2" />
 			</div>
 			<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">
-				{#each data as item}
-					<TableItem data={item} />
-				{/each}
+				{#if $ClientStore}
+					{#each $ClientStore.items as item}
+						{#if item.type_ == 'note'}
+							<TableItem data={item} />
+						{/if}
+					{/each}
+				{/if}
 			</div>
 		</div>
 	</div>

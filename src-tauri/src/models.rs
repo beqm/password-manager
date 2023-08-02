@@ -26,9 +26,11 @@ pub struct NewClient<'a> {
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Items {
     pub id: i32,
+    pub title: String,
     pub identifier: Option<String>,
     pub password: Option<String>,
     pub description: Option<String>,
+    pub link: Option<String>,
     pub type_: String,
     pub client_id: i32,
 }
@@ -36,9 +38,11 @@ pub struct Items {
 #[derive(Insertable)]
 #[diesel(table_name = items)]
 pub struct NewItem<'a> {
+    pub title: &'a str,
     pub identifier: &'a str,
     pub password: &'a str,
     pub description: &'a str,
+    pub link: &'a str,
     pub type_: &'a str,
     pub client_id: i32,
 }

@@ -1,7 +1,12 @@
 export type Item = {
+	id: number;
 	title: string;
-	content: string;
+	identifier: string;
+	password: string;
+	description: string;
+	type_: string;
 	link?: string;
+
 	lastUsed: string;
 	lastModified: string;
 };
@@ -16,6 +21,7 @@ export type Settings = {
 export type Client = {
 	id: number;
 	username: string;
+	items: Item[];
 };
 
 export type TauriResponse = {

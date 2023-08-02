@@ -1,23 +1,14 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
+	import ClientStore from '$lib/stores/ClientStore';
 	import type { Item } from '$lib/types/types';
+	import { localToStore } from '$lib/utils';
+	import { onMount } from 'svelte';
 	export let resultQuery: string | undefined = undefined;
-	const sampleWithlink: Item = {
-		title: 'google',
-		content: 'password123',
-		link: 'https://www.google.com/',
-		lastUsed: '02/01/2023',
-		lastModified: '01/01/2023'
-	};
 
-	const sampleWithoutlink: Item = {
-		title: 'notes',
-		content: 'password123',
-		lastUsed: '02/01/2023',
-		lastModified: '01/01/2023'
-	};
-
-	const data = [sampleWithlink];
+	onMount(async () => {
+		await localToStore(ClientStore, 'client', {});
+	});
 </script>
 
 <div class="flex justify-center h-full">
@@ -37,13 +28,13 @@
 				</div>
 			{/if}
 			<div class="h-[90%] min-h-[200px] overflow-y-scroll">
-				{#each data as item}
-					{#if resultQuery && item.title.includes(resultQuery)}
-						<TableItem data={item} />
-					{:else}
-						<h1 class="flex text-3xl font-bold w-full justify-center mt-10">No Results</h1>
-					{/if}
-				{/each}
+				{#if $ClientStore}
+					{#each $ClientStore.items as item}
+						{#if resultQuery && item.title.includes(resultQuery)}
+							<TableItem data={item} />
+						{/if}
+					{/each}
+				{/if}
 			</div>
 		</div>
 	</div>

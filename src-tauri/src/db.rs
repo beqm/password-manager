@@ -37,6 +37,11 @@ pub fn create_client(username: &str, master_password: &str, recovery_code: &str)
 pub enum ClientError {
     ClientNotFound,
 }
+
+#[derive(Debug)]
+pub enum ItemError {
+    EmptyItemsTable,
+}
 pub fn get_client(user: &str) -> Result<Client, ClientError> {
     use crate::schema::client::dsl::*;
 
@@ -65,13 +70,15 @@ pub fn update_master_password(user: &str, password: &str) -> Result<Client, Clie
     }
 }
 
-pub fn create_item(user_id: i32, identify: &str, pass: &str, desc: &str, _type: &str) -> Option<Items> {
+pub fn create_item(user_id: i32, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str) -> Option<Items> {
     use crate::schema::items;
 
     let new_item = NewItem {
+        title,
         identifier: identify,
         password: pass,
         description: desc,
+        link,
         type_: _type,
         client_id: user_id,
     };
@@ -84,4 +91,16 @@ pub fn create_item(user_id: i32, identify: &str, pass: &str, desc: &str, _type: 
         .get_result(&mut conn)
         .optional()
         .expect("Error creating new Item")
+}
+
+pub fn get_items(user_id: &i32) -> Option<Vec<Items>> {
+    use crate::schema::items::dsl::*;
+    let mut conn = establish_connection();
+
+    let result = items.filter(client_id.eq(user_id)).select(Items::as_select()).get_results(&mut conn);
+
+    match result {
+        Ok(c) => return Some(c),
+        Err(_) => return None,
+    }
 }

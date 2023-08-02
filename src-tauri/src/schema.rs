@@ -12,9 +12,11 @@ diesel::table! {
 diesel::table! {
     items (id) {
         id -> Integer,
+        title -> Text,
         identifier -> Nullable<Text>,
         password -> Nullable<Text>,
         description -> Nullable<Text>,
+        link -> Nullable<Text>,
         #[sql_name = "type"]
         type_ -> Text,
         client_id -> Integer,
