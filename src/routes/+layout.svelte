@@ -14,11 +14,11 @@
 	};
 
 	onMount(async () => {
-		client = await JSON.parse(localStorage.getItem('client') || 'null');
-		if (!client) {
-			goto('/login');
+		client = JSON.parse(localStorage.getItem('client') || 'null');
+		if (client) {
+			goto('/verify');
 		} else {
-			// goto('/verify')
+			goto('/login');
 		}
 	});
 </script>

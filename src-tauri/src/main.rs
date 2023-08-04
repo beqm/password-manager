@@ -63,8 +63,7 @@ fn update_item(username: &str, item_id: i32, title: &str, identify: &str, pass: 
 }
 
 #[tauri::command]
-fn remove_item(username: &str, item_id: i32) -> String {
-    let user = get_client(&username).unwrap();
+fn remove_item(item_id: i32) -> String {
     let result = del_item(item_id);
 
     match result {

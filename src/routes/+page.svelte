@@ -6,6 +6,11 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
+	let showItemMenu: boolean;
+	const toggleItemOptions = () => {
+		showItemMenu = !showItemMenu;
+	};
+
 	onMount(async () => {
 		await localToStore(ClientStore, 'client', {});
 		let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
@@ -13,53 +18,50 @@
 		$ClientStore.items = data.data;
 		await localStorage.setItem('client', JSON.stringify($ClientStore));
 	});
-
-	let showItemMenu: boolean;
-	const toggleItemOptions = () => {
-		showItemMenu = !showItemMenu;
-	};
 </script>
 
-<div class="flex justify-center h-full">
-	<div class="w-[90%]">
-		<div class="flex mt-20 h-[5%] items-center">
-			<h1 class="flex text-3xl font-bold">All items</h1>
-			<div class="ml-auto relative">
-				<button
-					on:click={toggleItemOptions}
-					class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
-					>Add Item</button
-				>
-				{#if showItemMenu}
-					<div
-						transition:fade={{ duration: 100 }}
-						class="flex flex-col absolute bg-primary-900 border border-primary-700 mt-1 right-0 w-[200px] z-10"
+{#if $ClientStore}
+	<div class="flex justify-center h-full">
+		<div class="w-[90%]">
+			<div class="flex mt-20 h-[5%] items-center">
+				<h1 class="flex text-3xl font-bold">All items</h1>
+				<div class="ml-auto relative">
+					<button
+						on:click={toggleItemOptions}
+						class="hover:bg-primary-700 border duration-200 w-[10%] min-w-[100px] border-primary-600 rounded-md p-2 active:scale-90 flex justify-center items-center bg-primary-600"
+						>Add Item</button
 					>
-						<a href="new_password" class="hover:bg-primary-700 p-2">New Password</a>
-						<a href="new_note" class="hover:bg-primary-700 p-2">New Note</a>
-					</div>
-				{/if}
+					{#if showItemMenu}
+						<div
+							transition:fade={{ duration: 100 }}
+							class="flex flex-col absolute bg-primary-900 border border-primary-700 mt-1 right-0 w-[200px] z-10"
+						>
+							<a href="new_password" class="hover:bg-primary-700 p-2">New Password</a>
+							<a href="new_note" class="hover:bg-primary-700 p-2">New Note</a>
+						</div>
+					{/if}
+				</div>
 			</div>
-		</div>
-		<div class="w-full mt-10 drop-shadow-xl h-[70%] rounded-md">
-			<div
-				class="flex items-center border-b border-primary-800 rounded-t-md text-sm lg:text-lg drop-shadow-lg h-[10%] font-bold text-center justify-evenly"
-			>
-				<div class="w-[20%] p-2">Title</div>
-				<div class="w-[20%] p-2">Last Modified</div>
-				<div class="w-[20%] p-2">Created</div>
-				<div class="w-[15%] p-2" />
-			</div>
-			<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">
-				{#if $ClientStore}
-					{#each $ClientStore.items as item}
-						<TableItem data={item} />
-					{/each}
-				{/if}
+			<div class="w-full mt-10 drop-shadow-xl h-[70%] rounded-md">
+				<div
+					class="flex items-center border-b border-primary-800 rounded-t-md text-sm lg:text-lg drop-shadow-lg h-[10%] font-bold text-center justify-evenly"
+				>
+					<div class="w-[20%] p-2">Title</div>
+					<div class="w-[20%] p-2">Last Modified</div>
+					<div class="w-[20%] p-2">Created</div>
+					<div class="w-[15%] p-2" />
+				</div>
+				<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">
+					{#if $ClientStore}
+						{#each $ClientStore.items as item}
+							<TableItem data={item} />
+						{/each}
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+{/if}
 
 <style>
 	div::-webkit-scrollbar {

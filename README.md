@@ -2,9 +2,9 @@
 - [x] Register user
 - [x] Login User
 - [x] Create Items
-- [] Create update page
-- [] Edit Items
-- [] Delete Items
+- [x] Create edit page
+- [x] Edit Items
+- [x] Delete Items
 - [] Encrypt Sensitive Data
 - [] When clicking on a item on the table, show more info ( like a page for the item )
 - [] Everytime user opens app, if logged in asks for masterpassword

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { TauriResponse } from '$lib/types/types';
 	import { invoke } from '@tauri-apps/api';
 
 	let username: string = '';

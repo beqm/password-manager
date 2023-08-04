@@ -1,7 +1,6 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
 	import ClientStore from '$lib/stores/ClientStore';
-	import type { Item } from '$lib/types/types';
 	import { localToStore } from '$lib/utils';
 	import { onMount } from 'svelte';
 	export let resultQuery: string | undefined = undefined;
@@ -27,7 +26,7 @@
 					<div class="w-[15%] p-2" />
 				</div>
 			{/if}
-			<div class="h-[90%] min-h-[200px] overflow-y-scroll">
+			<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">
 				{#if $ClientStore}
 					{#each $ClientStore.items as item}
 						{#if resultQuery && item.title.includes(resultQuery)}
