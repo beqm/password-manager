@@ -7,7 +7,9 @@
 	let formatCreated = new Date(data.created_at).toLocaleDateString();
 </script>
 
-<button class=" flex w-full items-center justify-evenly hover:bg-primary-800 duration-200">
+<button
+	class="cursor-default flex w-full items-center justify-evenly hover:bg-primary-800 duration-200"
+>
 	<div class="w-[20%] ml-2 p-4 overflow-hidden">{data.title}</div>
 	<div class="w-[20%] ml-2 p-4">{formatModified}</div>
 	<div class="w-[20%] ml-2 p-4">{formatCreated}</div>

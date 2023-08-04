@@ -6,7 +6,7 @@
 - [x] Edit Items
 - [x] Delete Items
 - [x] Everytime user opens app, if logged in asks for masterpassword
-- [] When clicking on a item on the table, show more info ( like a page for the item )
+- [x] Looking up how to migrate in runtime to recreate database in need
+<!-- - [] When clicking on a item on the table, show more info ( like a page for the item ) -->
 - [] Encrypt Sensitive Data
-- [] Looking up how to migrate in runtime to recreate database in need
 - [] How to import/export data so user can backup

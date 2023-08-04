@@ -7,11 +7,17 @@ use diesel::SqliteConnection;
 use dotenvy::dotenv;
 use std::env;
 
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+
+const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/");
+
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    SqliteConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+    let mut conn = SqliteConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+    conn.run_pending_migrations(MIGRATIONS).unwrap();
+    conn
 }
 
 pub fn create_client(username: &str, master_password: &str, recovery_code: &str) -> Option<Client> {
