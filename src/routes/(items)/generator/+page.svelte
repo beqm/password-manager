@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { generatePassword, localToStore } from '$lib/utils';
 	import { onMount } from 'svelte';
-	import TableBtn from '$lib/components/TableBtn.svelte';
-	import type { Settings } from '$lib/types/types';
+	import TableBtn from '$lib/components/ItemLaunch.svelte';
 	import SettingStore from '$lib/stores/SettingStore';
 
 	let password: string = '';

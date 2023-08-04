@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ItemLaunch from './ItemLaunch.svelte';
 	import ItemBtn from './ItemBtn.svelte';
-	import type { Item } from '$lib/types/types';
 	export let data: Item;
 
 	let formatModified = new Date(data.last_modified).toLocaleDateString();

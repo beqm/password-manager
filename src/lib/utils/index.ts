@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api';
-import type { Client, Settings } from '$lib/types/types';
 import type { Writable } from 'svelte/store';
+
 export const generatePassword = async (settings: Settings): Promise<string> => {
 	return await invoke('generate_password', {
 		length: settings.length,

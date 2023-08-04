@@ -36,7 +36,7 @@
 		<input id={message} type="text" class="hidden" value={content} />
 		<div
 			transition:fade={{ duration: 200 }}
-			class="absolute p-2 top-6 left-1/2 transform -translate-x-1/2 bg-primary-900 border border-primary-700 text-sm z-10"
+			class="absolute p-2 top-6 left-1/2 transform -translate-x-1/2 bg-primary-900 border border-primary-700 text-sm z-20"
 		>
 			{message}
 		</div>

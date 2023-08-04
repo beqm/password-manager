@@ -3,9 +3,8 @@
 	import { invoke } from '@tauri-apps/api';
 	import { slide } from 'svelte/transition';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
-	import TableBtn from '$lib/components/TableBtn.svelte';
+	import TableBtn from '$lib/components/ItemLaunch.svelte';
 	import { onMount } from 'svelte';
-	import type { TauriResponse } from '$lib/types/types';
 
 	let username: string = '';
 	let password: string = '';
