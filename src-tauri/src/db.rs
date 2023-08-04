@@ -92,6 +92,47 @@ pub fn create_item(user_id: i32, title: &str, identify: &str, pass: &str, desc: 
         .expect("Error creating new Item")
 }
 
+pub fn edit_item(
+    user_id: i32, item_id: i32, ititle: &str, identify: &str, pass: &str, desc: &str, ilink: &str, _type: &str, created: i64,
+) -> Option<Items> {
+    use crate::schema::items::dsl::*;
+    use chrono::Local;
+
+    let item = NewItem {
+        title: ititle,
+        identifier: identify,
+        password: pass,
+        description: desc,
+        link: ilink,
+        type_: _type,
+        client_id: user_id,
+        created_at: created,
+        last_modified: Local::now().timestamp_millis(),
+    };
+
+    let mut conn = establish_connection();
+
+    let result = diesel::update(items.filter(id.eq(item_id))).set(item).get_result(&mut conn);
+
+    match result {
+        Ok(c) => return Some(c),
+        Err(_) => return None,
+    }
+}
+
+pub fn del_item(item_id: i32) -> Option<Items> {
+    use crate::schema::items::dsl::*;
+
+    let mut conn = establish_connection();
+
+    let result = diesel::delete(items.filter(id.eq(item_id))).get_result(&mut conn);
+
+    match result {
+        Ok(c) => return Some(c),
+        Err(_) => return None,
+    }
+}
+
 pub fn get_items(user_id: &i32) -> Option<Vec<Items>> {
     use crate::schema::items::dsl::*;
     let mut conn = establish_connection();

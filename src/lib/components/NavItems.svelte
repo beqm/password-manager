@@ -79,7 +79,7 @@
 				>
 				<span class="ml-2 flex">All Items</span>
 			</a>
-			<a class={cPasswords} href="passwords">
+			<a class={cPasswords} href="/passwords">
 				<svg
 					class="w-[10%]"
 					fill="currentColor"
@@ -92,7 +92,7 @@
 				>
 				<span class="ml-2 flex">Passwords</span>
 			</a>
-			<a class={cNotes} href="notes">
+			<a class={cNotes} href="/notes">
 				<svg
 					class="w-[10%]"
 					fill="currentColor"

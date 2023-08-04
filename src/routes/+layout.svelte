@@ -4,10 +4,7 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import PageWrapper from '$lib/components/PageWrapper.svelte';
 	import { onMount } from 'svelte';
-	import { localToStore } from '$lib/utils';
-	import SettingStore from '$lib/stores/SettingStore';
 	import { goto } from '$app/navigation';
-	import type { Client } from '$lib/types/types';
 	let resultQuery: string | undefined = undefined;
 	let client: Client;
 
@@ -41,9 +38,7 @@
 				</li>
 				<li class="flex mt-auto border-b border-t w-full border-primary-800 p-4">
 					<div class="flex justify-start w-[80%] items-center font-bold overflow-hidden text-lg">
-						{#if client}
-							{client.username}
-						{/if}
+						{client.username}
 					</div>
 					<div class="flex justify-center w-[20%] m-2">
 						<button class="hover:text-hover mr-4">

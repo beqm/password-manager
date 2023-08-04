@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use db::{create_client, create_item, get_client, get_items, update_master_password};
+use db::{create_client, create_item, del_item, edit_item, get_client, get_items, update_master_password};
 use models::Items;
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
@@ -44,6 +44,28 @@ pub fn generate_recovery_code() -> String {
 fn add_item(username: &str, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str) -> String {
     let user = get_client(&username).unwrap();
     let result = create_item(user.id, title, identify, pass, desc, link, _type);
+
+    match result {
+        Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
+        None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
+}
+
+#[tauri::command]
+fn update_item(username: &str, item_id: i32, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str, created: i64) -> String {
+    let user = get_client(&username).unwrap();
+    let result = edit_item(user.id, item_id, title, identify, pass, desc, link, _type, created);
+
+    match result {
+        Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
+        None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+    }
+}
+
+#[tauri::command]
+fn remove_item(username: &str, item_id: i32) -> String {
+    let user = get_client(&username).unwrap();
+    let result = del_item(item_id);
 
     match result {
         Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
@@ -217,7 +239,8 @@ fn main() {
             _ => {},
         })
         .invoke_handler(tauri::generate_handler![
-            launch_website, generate_password, register, login, verify_recovery_code, change_password, add_item, fetch_items
+            launch_website, generate_password, register, login, verify_recovery_code, change_password, add_item, fetch_items, update_item,
+            remove_item
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

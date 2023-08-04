@@ -2,6 +2,7 @@
 	import { afterNavigate } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import { invoke } from '@tauri-apps/api';
 
 	let title: string = '';
 	let description: string = '';
@@ -21,22 +22,37 @@
 			cTitle =
 				'placeholder:text-error focus:border-secondary-800 focus:bg-secondary-900 bg-error border-error';
 			cCreateBtn = 'bg-primary-700 border-primary-700';
-			return true;
+			return false;
 		} else {
 			cErrorMsg = 'invisible';
 			cTitle = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';
 			cCreateBtn = 'bg-primary-600 border-primary-700 active:scale-90';
-			return false;
+			return true;
 		}
 	};
 
-	const createPassword = () => {
-		if (!validateTitle()) {
-			let NoteItem = {
+	const createNote = async () => {
+		let canRegister: boolean = false;
+
+		if (validateTitle()) {
+			canRegister = true;
+		} else {
+			canRegister = false;
+		}
+
+		if (canRegister) {
+			let user: Client = JSON.parse(localStorage.getItem('client') || '');
+			await invoke('add_item', {
+				username: user.username,
 				title,
-				description
-			};
-			console.log(NoteItem);
+				identify: '',
+				pass: '',
+				desc: description,
+				link: '',
+				type: 'note'
+			});
+			// TODO: Add item viewer and redirect to that later.
+			goto(previousPage);
 		}
 	};
 
@@ -52,7 +68,7 @@
 		</div>
 		<form
 			class="flex flex-col text-lg w-full h-full items-center"
-			on:submit|preventDefault={createPassword}
+			on:submit|preventDefault={createNote}
 		>
 			<div class="flex flex-col mt-10 w-[60%]">
 				<span class="text-hover text-xs mb-2">Required</span>

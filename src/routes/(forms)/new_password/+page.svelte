@@ -6,7 +6,6 @@
 	import SettingStore from '$lib/stores/SettingStore';
 	import { onMount } from 'svelte';
 	import { invoke } from '@tauri-apps/api';
-	import type { Client } from '$lib/types/types';
 
 	let title: string = '';
 	let websiteUrl: string = '';

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
 	import ClientStore from '$lib/stores/ClientStore';
-	import type { TauriResponse } from '$lib/types/types';
 	import { localToStore } from '$lib/utils';
 	import { invoke } from '@tauri-apps/api';
 	import { onMount } from 'svelte';

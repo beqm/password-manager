@@ -37,7 +37,7 @@ pub struct Items {
     pub client_id: i32,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, AsChangeset)]
 #[diesel(table_name = items)]
 pub struct NewItem<'a> {
     pub title: &'a str,
