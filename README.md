@@ -2,6 +2,7 @@
 - [x] Register user
 - [x] Login User
 - [x] Create Items
+- [] Create update page
 - [] Edit Items
 - [] Delete Items
 - [] Encrypt Sensitive Data
