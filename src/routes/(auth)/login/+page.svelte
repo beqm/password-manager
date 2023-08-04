@@ -80,13 +80,6 @@
 			}
 		}
 	};
-
-	onMount(() => {
-		let client = localStorage.getItem('client');
-		if (client) {
-			goto('/');
-		}
-	});
 </script>
 
 <div

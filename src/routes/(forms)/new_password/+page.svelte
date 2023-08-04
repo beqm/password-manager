@@ -5,6 +5,7 @@
 	import { generatePassword, localToStore } from '$lib/utils';
 	import SettingStore from '$lib/stores/SettingStore';
 	import { onMount } from 'svelte';
+	import ClientStore from '$lib/stores/ClientStore';
 	import { invoke } from '@tauri-apps/api';
 
 	let title: string = '';
@@ -71,8 +72,12 @@
 				link: websiteUrl,
 				type: 'password'
 			});
+			let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
+			let data: TauriResponse = JSON.parse(items);
+			$ClientStore.items = data.data;
+			await localStorage.setItem('client', JSON.stringify($ClientStore));
 			// TODO: Add item viewer and redirect to that later.
-			goto('/passwords');
+			goto(previousPage);
 		}
 	};
 

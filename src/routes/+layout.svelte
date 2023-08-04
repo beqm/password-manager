@@ -5,8 +5,9 @@
 	import PageWrapper from '$lib/components/PageWrapper.svelte';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import ClientStore from '$lib/stores/ClientStore';
+	import { localToStore } from '$lib/utils';
 	let resultQuery: string | undefined = undefined;
-	let client: Client;
 
 	const logout = () => {
 		localStorage.removeItem('client');
@@ -14,8 +15,9 @@
 	};
 
 	onMount(async () => {
-		client = JSON.parse(localStorage.getItem('client') || 'null');
-		if (client) {
+		await localToStore(ClientStore, 'client', null);
+		console.log($ClientStore);
+		if ($ClientStore) {
 			goto('/verify');
 		} else {
 			goto('/login');
@@ -23,7 +25,7 @@
 	});
 </script>
 
-{#if client}
+{#if $ClientStore}
 	<div class="flex text-dark">
 		<nav
 			class="h-screen bg-primary-900 w-[25%] max-w-[300px] min-w-[200px] border-r border-primary-800"
@@ -38,7 +40,7 @@
 				</li>
 				<li class="flex mt-auto border-b border-t w-full border-primary-800 p-4">
 					<div class="flex justify-start w-[80%] items-center font-bold overflow-hidden text-lg">
-						{client.username}
+						{$ClientStore.username}
 					</div>
 					<div class="flex justify-center w-[20%] m-2">
 						<button class="hover:text-hover mr-4">

@@ -73,6 +73,10 @@
 					type: item.type_,
 					created: item.created_at
 				});
+				let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
+				let data: TauriResponse = JSON.parse(items);
+				$ClientStore.items = data.data;
+				await localStorage.setItem('client', JSON.stringify($ClientStore));
 				// TODO: Add item viewer and redirect to that later.
 				goto(previousPage);
 			}
@@ -97,7 +101,6 @@
 	};
 
 	onMount(async () => {
-		await localToStore(ClientStore, 'client', {});
 		item = $ClientStore.items.find((item: Item) => item.id == parseInt($page.params.slug));
 	});
 </script>

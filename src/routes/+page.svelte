@@ -2,7 +2,6 @@
 	import TableItem from '$lib/components/TableItem.svelte';
 	import ClientStore from '$lib/stores/ClientStore';
 	import { localToStore } from '$lib/utils';
-	import { invoke } from '@tauri-apps/api';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
@@ -12,11 +11,7 @@
 	};
 
 	onMount(async () => {
-		await localToStore(ClientStore, 'client', {});
-		let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
-		let data: TauriResponse = JSON.parse(items);
-		$ClientStore.items = data.data;
-		await localStorage.setItem('client', JSON.stringify($ClientStore));
+		await localToStore(ClientStore, 'client', null);
 	});
 </script>
 

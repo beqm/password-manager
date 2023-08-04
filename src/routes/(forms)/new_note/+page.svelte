@@ -3,6 +3,7 @@
 	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { invoke } from '@tauri-apps/api';
+	import ClientStore from '$lib/stores/ClientStore';
 
 	let title: string = '';
 	let description: string = '';
@@ -51,6 +52,10 @@
 				link: '',
 				type: 'note'
 			});
+			let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
+			let data: TauriResponse = JSON.parse(items);
+			$ClientStore.items = data.data;
+			await localStorage.setItem('client', JSON.stringify($ClientStore));
 			// TODO: Add item viewer and redirect to that later.
 			goto(previousPage);
 		}

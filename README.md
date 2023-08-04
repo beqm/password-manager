@@ -5,8 +5,8 @@
 - [x] Create edit page
 - [x] Edit Items
 - [x] Delete Items
-- [] Encrypt Sensitive Data
+- [x] Everytime user opens app, if logged in asks for masterpassword
 - [] When clicking on a item on the table, show more info ( like a page for the item )
-- [] Everytime user opens app, if logged in asks for masterpassword
+- [] Encrypt Sensitive Data
 - [] Looking up how to migrate in runtime to recreate database in need
 - [] How to import/export data so user can backup
