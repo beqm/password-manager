@@ -7,8 +7,8 @@
 	let isKPressed = false;
 
 	const addFocusEffect = () => {
-		cFocus = 'border-primary-200 bg-primary-700';
-		cFocusInput = 'bg-primary-700';
+		cFocus = 'border-primary-200 bg-primary-800';
+		cFocusInput = 'bg-primary-800';
 	};
 
 	const removeFocusEffect = () => {
@@ -60,7 +60,7 @@
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <div
-	class={`${cFocus} border duration-200 border-primary-400 p-2 w-[60%] flex justify-center items-center bg-primary-600`}
+	class={`${cFocus} border duration-200 border-primary-600 p-2 w-[60%] rounded-md flex justify-center items-center bg-primary-600`}
 >
 	<svg
 		class="mr-2 w-1/3"
