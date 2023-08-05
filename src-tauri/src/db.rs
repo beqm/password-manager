@@ -12,7 +12,11 @@ const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/");
 pub fn establish_connection() -> SqliteConnection {
     println!("[INFO] Connecting to database");
 
-    let database_url = "_up_/data/data.db";
+    // Build url
+    // let database_url = "_up_/data/data.db";
+
+    // Dev url
+    let database_url = "../data/data.db";
     let mut conn = SqliteConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
     conn.run_pending_migrations(MIGRATIONS).unwrap();
     conn

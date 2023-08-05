@@ -3,7 +3,7 @@
 	export let resultQuery: string | undefined = undefined;
 </script>
 
-<main class=" bg-primary-1000 h-screen w-full overflow-hidden">
+<main on:contextmenu|preventDefault class=" bg-primary-1000 h-screen w-full overflow-hidden">
 	{#if resultQuery !== undefined && resultQuery.length > 0}
 		<Results bind:resultQuery />
 	{:else}

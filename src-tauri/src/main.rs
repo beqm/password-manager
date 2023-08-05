@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use argon2::password_hash::{rand_core::OsRng, PasswordHasher, SaltString};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use db::{create_client, create_item, del_item, edit_item, get_client, get_items, update_master_password};
 use models::Items;
@@ -150,11 +151,6 @@ fn fetch_items(user_id: i32, username: &str) -> String {
 
 #[tauri::command]
 fn register(username: &str, master_password: &str) -> String {
-    use argon2::{
-        password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
-        Argon2,
-    };
-
     let mut salt = SaltString::generate(&mut OsRng);
     let mut argon2 = Argon2::default();
     let password_hash = argon2.hash_password(master_password.as_bytes(), &salt).unwrap().to_string();
@@ -165,6 +161,7 @@ fn register(username: &str, master_password: &str) -> String {
     let recovery_hash = argon2.hash_password(recovery_code.as_bytes(), &salt).unwrap().to_string();
 
     let result = create_client(&username, &password_hash, &recovery_hash);
+
     match result {
         Some(_) => serde_json::to_string(&TauriResponse::<String> {
             data: recovery_code.to_string(),
@@ -273,7 +270,7 @@ fn generate_password(length: u32, upper: bool, numbers: bool, symbols: bool) -> 
 }
 
 fn main() {
-    // Client::initialize_table();
+    println!("[INFO] APP INITIALIZED");
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let show = CustomMenuItem::new("open".to_string(), "Open");
     let tray_menu = SystemTrayMenu::new()
