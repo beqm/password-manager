@@ -26,6 +26,9 @@
 	const onKeyDown = (event: KeyboardEvent) => {
 		if (event.repeat) return;
 		switch (event.key) {
+			case 'F5':
+				event.preventDefault();
+				break;
 			case 'Control':
 				isCtrlPressed = true;
 				event.preventDefault();
@@ -51,6 +54,9 @@
 
 			case 'k':
 				isKPressed = false;
+				event.preventDefault();
+				break;
+			case 'r':
 				event.preventDefault();
 				break;
 		}

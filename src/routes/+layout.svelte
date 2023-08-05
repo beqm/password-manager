@@ -14,6 +14,21 @@
 		goto('/login');
 	};
 
+	const preventReload = (event: KeyboardEvent) => {
+		if (event.repeat) return;
+		switch (event.key) {
+			case 'F5':
+				event.preventDefault();
+				break;
+			case 'Control':
+				event.preventDefault();
+				break;
+			case 'r':
+				event.preventDefault();
+				break;
+		}
+	};
+
 	onMount(async () => {
 		await localToStore(ClientStore, 'client', null);
 		if ($ClientStore) {
@@ -23,6 +38,8 @@
 		}
 	});
 </script>
+
+<svelte:window on:keydown={preventReload} />
 
 {#if $ClientStore}
 	<div class="flex text-dark">
