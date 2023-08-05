@@ -4,17 +4,15 @@ use crate::models::NewClient;
 use crate::models::NewItem;
 use diesel::prelude::*;
 use diesel::SqliteConnection;
-use dotenvy::dotenv;
-use std::env;
 
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations/");
 
 pub fn establish_connection() -> SqliteConnection {
-    dotenv().ok();
+    println!("[INFO] Connecting to database");
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = "_up_/data/data.db";
     let mut conn = SqliteConnection::establish(&database_url).unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
     conn.run_pending_migrations(MIGRATIONS).unwrap();
     conn
@@ -22,7 +20,6 @@ pub fn establish_connection() -> SqliteConnection {
 
 pub fn create_client(username: &str, master_password: &str, recovery_code: &str) -> Option<Client> {
     use crate::schema::client;
-
     let mut conn = establish_connection();
 
     let new_client = NewClient {
@@ -31,12 +28,22 @@ pub fn create_client(username: &str, master_password: &str, recovery_code: &str)
         recovery_code,
     };
 
-    diesel::insert_or_ignore_into(client::table)
+    let result = diesel::insert_or_ignore_into(client::table)
         .values(&new_client)
         .returning(Client::as_returning())
         .get_result(&mut conn)
-        .optional()
-        .expect("Error creating new client")
+        .optional();
+
+    match result {
+        Ok(c) => {
+            println!("[SUCCESS] Creating new client: {:?}", &username);
+            return c;
+        },
+        Err(err) => {
+            println!("[ERROR] Failed Creating new client: {:?}", err);
+            return None;
+        },
+    }
 }
 
 #[derive(Debug)]
@@ -48,12 +55,17 @@ pub fn get_client(user: &str) -> Result<Client, ClientError> {
     use crate::schema::client::dsl::*;
 
     let mut conn = establish_connection();
-
     let result = client.filter(username.eq(user)).select(Client::as_select()).first(&mut conn);
 
     match result {
-        Ok(c) => return Ok(c),
-        Err(_) => return Err(ClientError::ClientNotFound),
+        Ok(c) => {
+            println!("[SUCCESS] retrieving data of: {:?}", &user);
+            return Ok(c);
+        },
+        Err(_) => {
+            println!("[ERROR] user doesn't exist: {:?}", &user);
+            return Err(ClientError::ClientNotFound);
+        },
     }
 }
 
@@ -61,14 +73,19 @@ pub fn update_master_password(user: &str, password: &str) -> Result<Client, Clie
     use crate::schema::client::dsl::*;
 
     let mut conn = establish_connection();
-
     let result = diesel::update(client.filter(username.eq(user)))
         .set(master_password.eq(password))
         .get_result(&mut conn);
 
     match result {
-        Ok(c) => return Ok(c),
-        Err(_) => return Err(ClientError::ClientNotFound),
+        Ok(c) => {
+            println!("[SUCCESS] updating data of: {:?}", &user);
+            return Ok(c);
+        },
+        Err(_) => {
+            println!("[ERROR] user error not found: {:?}", &user);
+            return Err(ClientError::ClientNotFound);
+        },
     }
 }
 
@@ -89,13 +106,22 @@ pub fn create_item(user_id: i32, title: &str, identify: &str, pass: &str, desc: 
     };
 
     let mut conn = establish_connection();
-
-    diesel::insert_or_ignore_into(items::table)
+    let result = diesel::insert_or_ignore_into(items::table)
         .values(&new_item)
         .returning(Items::as_returning())
         .get_result(&mut conn)
-        .optional()
-        .expect("Error creating new Item")
+        .optional();
+
+    match result {
+        Ok(c) => {
+            println!("[SUCCESS] Creating item: {:?}, TYPE: {:?}", &title, &_type);
+            return c;
+        },
+        Err(_) => {
+            println!("[ERROR] Error Creating item: {:?}, TYPE: {:?}", &title, &_type);
+            return None;
+        },
+    }
 }
 
 pub fn edit_item(
@@ -117,36 +143,50 @@ pub fn edit_item(
     };
 
     let mut conn = establish_connection();
-
     let result = diesel::update(items.filter(id.eq(item_id))).set(item).get_result(&mut conn);
 
     match result {
-        Ok(c) => return Some(c),
-        Err(_) => return None,
+        Ok(c) => {
+            println!("[SUCCESS] Editting item: {:?}, TYPE: {:?}", &ititle, &_type);
+            return Some(c);
+        },
+        Err(_) => {
+            println!("[ERROR] Error Occured: {:?}, TYPE: {:?}", &ititle, &_type);
+            return None;
+        },
     }
 }
 
 pub fn del_item(item_id: i32) -> Option<Items> {
     use crate::schema::items::dsl::*;
-
     let mut conn = establish_connection();
-
     let result = diesel::delete(items.filter(id.eq(item_id))).get_result(&mut conn);
 
     match result {
-        Ok(c) => return Some(c),
-        Err(_) => return None,
+        Ok(c) => {
+            println!("[SUCCESS] Deleting item: {:?}", item_id);
+            return Some(c);
+        },
+        Err(_) => {
+            println!("[ERROR] Item not found: {:?}", item_id);
+            return None;
+        },
     }
 }
 
 pub fn get_items(user_id: &i32) -> Option<Vec<Items>> {
     use crate::schema::items::dsl::*;
     let mut conn = establish_connection();
-
     let result = items.filter(client_id.eq(user_id)).select(Items::as_select()).get_results(&mut conn);
 
     match result {
-        Ok(c) => return Some(c),
-        Err(_) => return None,
+        Ok(c) => {
+            println!("[SUCCESS] Fetching items from: {:?}", &user_id);
+            return Some(c);
+        },
+        Err(_) => {
+            println!("[ERROR] Items not found: {:?}", &user_id);
+            return None;
+        },
     }
 }
