@@ -9,6 +9,11 @@ use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use tauri::{CustomMenuItem, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem};
 
+use chacha20poly1305::{
+    aead::{generic_array::GenericArray, Aead, KeyInit},
+    XChaCha20Poly1305,
+};
+
 mod db;
 mod models;
 mod schema;
@@ -43,8 +48,26 @@ pub fn generate_recovery_code() -> String {
 #[tauri::command]
 fn add_item(username: &str, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str) -> String {
     let user = get_client(&username).unwrap();
-    let result = create_item(user.id, title, identify, pass, desc, link, _type);
+    let mut stringified_pass = "".to_string();
+    let mut stringified_desc = "".to_string();
 
+    if pass.len() > 0 || desc.len() > 0 {
+        let parsed_key = GenericArray::from_slice(user.master_password.as_bytes().get(..32).unwrap_or_default());
+        let cipher = XChaCha20Poly1305::new(&parsed_key);
+        let parsed_nonce = GenericArray::from_slice(user.recovery_code.as_bytes().get(..24).unwrap_or_default());
+
+        if pass.len() > 0 {
+            let encrypted_pass = cipher.encrypt(&parsed_nonce, pass.as_bytes().as_ref()).unwrap();
+            stringified_pass = format!("{:?}", encrypted_pass);
+        }
+
+        if desc.len() > 0 {
+            let encrypted_desc = cipher.encrypt(&parsed_nonce, desc.as_bytes().as_ref()).unwrap();
+            stringified_desc = format!("{:?}", encrypted_desc);
+        }
+    }
+
+    let result = create_item(user.id, title, identify, &stringified_pass, &stringified_desc, link, _type);
     match result {
         Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
         None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
@@ -54,8 +77,26 @@ fn add_item(username: &str, title: &str, identify: &str, pass: &str, desc: &str,
 #[tauri::command]
 fn update_item(username: &str, item_id: i32, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str, created: i64) -> String {
     let user = get_client(&username).unwrap();
-    let result = edit_item(user.id, item_id, title, identify, pass, desc, link, _type, created);
+    let mut stringified_pass = "".to_string();
+    let mut stringified_desc = "".to_string();
 
+    if pass.len() > 0 || desc.len() > 0 {
+        let parsed_key = GenericArray::from_slice(user.master_password.as_bytes().get(..32).unwrap_or_default());
+        let cipher = XChaCha20Poly1305::new(&parsed_key);
+        let parsed_nonce = GenericArray::from_slice(user.recovery_code.as_bytes().get(..24).unwrap_or_default());
+
+        if pass.len() > 0 {
+            let encrypted_pass = cipher.encrypt(&parsed_nonce, pass.as_bytes().as_ref()).unwrap();
+            stringified_pass = format!("{:?}", encrypted_pass);
+        }
+
+        if desc.len() > 0 {
+            let encrypted_desc = cipher.encrypt(&parsed_nonce, desc.as_bytes().as_ref()).unwrap();
+            stringified_desc = format!("{:?}", encrypted_desc);
+        }
+    }
+
+    let result = edit_item(user.id, item_id, title, identify, &stringified_pass, &stringified_desc, link, _type, created);
     match result {
         Some(i) => serde_json::to_string(&TauriResponse::<Items> { data: i, status: 200 }).unwrap(),
         None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
@@ -73,11 +114,36 @@ fn remove_item(item_id: i32) -> String {
 }
 
 #[tauri::command]
-fn fetch_items(user_id: i32) -> String {
+fn fetch_items(user_id: i32, username: &str) -> String {
     let result = get_items(&user_id);
+    let user = get_client(&username).unwrap();
 
     match result {
-        Some(i) => serde_json::to_string(&TauriResponse::<Vec<Items>> { data: i, status: 200 }).unwrap(),
+        Some(mut v) => {
+            for item in v.iter_mut() {
+                let pass = item.password.as_ref().unwrap();
+                let desc = item.description.as_ref().unwrap();
+                if pass.len() > 0 || desc.len() > 0 {
+                    let parsed_key = GenericArray::from_slice(user.master_password.as_bytes().get(..32).unwrap_or_default());
+                    let cipher = XChaCha20Poly1305::new(&parsed_key);
+                    let parsed_nonce = GenericArray::from_slice(user.recovery_code.as_bytes().get(..24).unwrap_or_default());
+
+                    if pass.len() > 0 {
+                        let serialized_pass: Vec<u8> = serde_json::from_str(&pass.replace('\'', "\"")).unwrap();
+                        let decrypted_pass = cipher.decrypt(&parsed_nonce, serialized_pass.as_ref()).unwrap();
+                        item.password = Some(String::from_utf8(decrypted_pass).unwrap());
+                    }
+
+                    if desc.len() > 0 {
+                        let serialized_desc: Vec<u8> = serde_json::from_str(&desc.replace('\'', "\"")).unwrap();
+                        let decrypted_desc = cipher.decrypt(&parsed_nonce, serialized_desc.as_ref()).unwrap();
+                        item.description = Some(String::from_utf8(decrypted_desc).unwrap());
+                    }
+                }
+            }
+
+            serde_json::to_string(&TauriResponse::<Vec<Items>> { data: v, status: 200 }).unwrap()
+        },
         None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
 }

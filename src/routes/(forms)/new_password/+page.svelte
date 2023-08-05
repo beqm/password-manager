@@ -63,7 +63,7 @@
 
 		if (canRegister) {
 			let user: Client = JSON.parse(localStorage.getItem('client') || '');
-			await invoke('add_item', {
+			let x = await invoke('add_item', {
 				username: user.username,
 				title,
 				identify: usernameOrEmail,
@@ -72,7 +72,12 @@
 				link: websiteUrl,
 				type: 'password'
 			});
-			let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
+
+			let items: string = await invoke('fetch_items', {
+				userId: $ClientStore.id,
+				username: $ClientStore.username
+			});
+			console.log(items);
 			let data: TauriResponse = JSON.parse(items);
 			$ClientStore.items = data.data;
 			await localStorage.setItem('client', JSON.stringify($ClientStore));

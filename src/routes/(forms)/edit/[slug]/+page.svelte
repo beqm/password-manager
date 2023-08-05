@@ -73,7 +73,10 @@
 					type: item.type_,
 					created: item.created_at
 				});
-				let items: string = await invoke('fetch_items', { userId: $ClientStore.id });
+				let items: string = await invoke('fetch_items', {
+					userId: $ClientStore.id,
+					username: $ClientStore.username
+				});
 				let data: TauriResponse = JSON.parse(items);
 				$ClientStore.items = data.data;
 				await localStorage.setItem('client', JSON.stringify($ClientStore));
@@ -151,6 +154,7 @@
 								class="bg-secondary-800 w-full outline-none border border-secondary-800 focus:bg-secondary-900 rounded-md h-fit mt-6 p-2"
 								{type}
 								placeholder="Password"
+								value={item.password}
 								on:input={bindValue}
 							/>
 							{#if visibility}

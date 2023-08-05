@@ -16,7 +16,6 @@
 
 	onMount(async () => {
 		await localToStore(ClientStore, 'client', null);
-		console.log($ClientStore);
 		if ($ClientStore) {
 			goto('/verify');
 		} else {

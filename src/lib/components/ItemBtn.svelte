@@ -32,7 +32,10 @@
 			itemId: content.id
 		});
 
-		let items: string = await invoke('fetch_items', { userId: user.id });
+		let items: string = await invoke('fetch_items', {
+			userId: $ClientStore.id,
+			username: $ClientStore.username
+		});
 		let data: TauriResponse = JSON.parse(items);
 		$ClientStore.items = data.data;
 		await localStorage.setItem('client', JSON.stringify($ClientStore));
