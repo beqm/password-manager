@@ -74,7 +74,10 @@
 		</PageWrapper>
 	</div>
 {:else}
-	<main class="text-dark bg-primary-1000 h-screen w-full overflow-hidden">
+	<main
+		on:contextmenu|preventDefault
+		class="text-dark bg-primary-1000 h-screen w-full overflow-hidden"
+	>
 		<slot />
 	</main>
 {/if}
