@@ -7,23 +7,45 @@
 	import { goto } from '$app/navigation';
 	import ClientStore from '$lib/stores/ClientStore';
 	import { localToStore } from '$lib/utils';
+
 	let resultQuery: string | undefined = undefined;
+	let isCtrlPressed = false;
+	let isRPressed = false;
 
 	const logout = () => {
 		localStorage.removeItem('client');
 		goto('/login');
 	};
 
-	const preventReload = (event: KeyboardEvent) => {
+	const onKeyDown = (event: KeyboardEvent) => {
 		if (event.repeat) return;
+
 		switch (event.key) {
 			case 'F5':
 				event.preventDefault();
 				break;
 			case 'Control':
+				isCtrlPressed = true;
+				break;
+
+			case 'r':
+				isRPressed = true;
+				break;
+		}
+		if (isCtrlPressed && isRPressed) {
+			event.preventDefault();
+		}
+	};
+
+	const onKeyUp = (event: KeyboardEvent) => {
+		switch (event.key) {
+			case 'Control':
+				isCtrlPressed = false;
 				event.preventDefault();
 				break;
+
 			case 'r':
+				isRPressed = false;
 				event.preventDefault();
 				break;
 		}
@@ -39,7 +61,7 @@
 	});
 </script>
 
-<svelte:window on:keydown={preventReload} />
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 {#if $ClientStore}
 	<div class="flex text-dark">

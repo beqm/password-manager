@@ -8,6 +8,8 @@
 - [x] Everytime user opens app, if logged in asks for masterpassword
 - [x] Looking up how to migrate in runtime to recreate database in need
 - [x] Encrypt Sensitive Data
+- [] WXS installer ui
+- [] fix webview offline installer error
 - [] Splashcreen
 - [] Light Theme
 - [] Settings Page
