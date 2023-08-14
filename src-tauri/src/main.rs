@@ -53,7 +53,7 @@ pub fn generate_recovery_code() -> String {
     hasher.update(random_bytes);
     let hash = hasher.finalize();
 
-    base32::encode(alphabet, &hash)
+    base32::encode(alphabet, &hash)[0..=10].to_string()
 }
 
 #[tauri::command]
