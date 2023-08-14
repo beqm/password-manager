@@ -2,7 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { invoke } from '@tauri-apps/api';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
-	import { onMount } from 'svelte';
 
 	let username: string = '';
 	let cUser: string = 'bg-secondary-800 border-secondary-800 focus:bg-secondary-900';

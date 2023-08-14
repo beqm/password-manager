@@ -1,9 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::sync::Mutex;
+
 use argon2::password_hash::{rand_core::OsRng, PasswordHasher, SaltString};
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use db::{create_client, create_item, del_item, edit_item, get_client, get_items, update_master_password};
+use lazy_static::lazy_static;
 use models::Items;
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
@@ -15,9 +18,16 @@ use chacha20poly1305::{
     XChaCha20Poly1305,
 };
 
+use crate::db::toggle_app_lock;
+
 mod db;
 mod models;
 mod schema;
+
+lazy_static! {
+    static ref USER: Mutex<String> = Mutex::new("NULL".to_string());
+    static ref LOCK: Mutex<i32> = Mutex::new(0);
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TauriResponse<T> {
@@ -181,6 +191,7 @@ fn login(username: &str, master_password: &str) -> String {
             let password_match = Argon2::default().verify_password(master_password.as_bytes(), &parsed_hash).is_ok();
 
             if password_match {
+                *USER.lock().unwrap() = c.username.to_string();
                 let items = get_items(&c.id);
 
                 let data = TauriClient {
@@ -200,6 +211,12 @@ fn login(username: &str, master_password: &str) -> String {
         },
         Err(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
+}
+
+#[tauri::command]
+fn logout() -> String {
+    *USER.lock().unwrap() = "NULL".to_string();
+    serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 200 }).unwrap()
 }
 
 #[tauri::command]
@@ -269,12 +286,29 @@ fn generate_password(length: u32, upper: bool, numbers: bool, symbols: bool) -> 
     password
 }
 
+#[tauri::command]
+fn check_lock() -> bool {
+    let user = get_client(&USER.lock().unwrap());
+
+    if let Ok(c) = user {
+        if c.app_lock == 1 {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
 fn main() {
     println!("[INFO] APP INITIALIZED");
-    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let show = CustomMenuItem::new("open".to_string(), "Open");
+    let lock = CustomMenuItem::new("lock".to_string(), "Lock");
+    let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let tray_menu = SystemTrayMenu::new()
         .add_item(show)
+        .add_item(lock)
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(quit);
     let system_tray = SystemTray::new().with_menu(tray_menu);
@@ -288,21 +322,37 @@ fn main() {
                 window.set_focus().unwrap();
             },
             SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "quit" => {
-                    std::process::exit(0);
-                },
                 "open" => {
                     let window = app.get_window("main").unwrap();
                     window.show().unwrap();
                     window.set_focus().unwrap();
                 },
+                "lock" => {
+                    let user = get_client(&USER.lock().unwrap());
+                    if let Ok(c) = user {
+                        toggle_app_lock(c).unwrap();
+                    }
+                },
+                "quit" => {
+                    std::process::exit(0);
+                },
                 _ => {},
             },
-            _ => {},
+            _ => {
+                let user = get_client(&USER.lock().unwrap());
+                if let Ok(c) = user {
+                    let item_handle = app.tray_handle().get_item("lock");
+                    if c.app_lock == 1 {
+                        item_handle.set_title("Lock \u{2714}").unwrap();
+                    } else {
+                        item_handle.set_title("Lock").unwrap();
+                    }
+                }
+            },
         })
         .invoke_handler(tauri::generate_handler![
-            launch_website, generate_password, register, login, verify_recovery_code, change_password, add_item, fetch_items, update_item,
-            remove_item
+            launch_website, generate_password, register, login, logout, verify_recovery_code, change_password, add_item, fetch_items, update_item,
+            remove_item, check_lock
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

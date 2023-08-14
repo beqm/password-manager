@@ -82,6 +82,7 @@ dependencies = [
  "chrono",
  "diesel",
  "diesel_migrations",
+ "lazy_static",
  "libsqlite3-sys",
  "open",
  "rand 0.8.5",

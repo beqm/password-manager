@@ -7,19 +7,26 @@
 	import { goto } from '$app/navigation';
 	import ClientStore from '$lib/stores/ClientStore';
 	import { localToStore } from '$lib/utils';
+	import { appWindow } from '@tauri-apps/api/window';
+	import { invoke } from '@tauri-apps/api';
 
 	let resultQuery: string | undefined = undefined;
 	let isCtrlPressed = false;
 	let isRPressed = false;
 
 	const logout = () => {
+		invoke('logout');
 		localStorage.removeItem('client');
 		goto('/login');
 	};
 
+	appWindow.onCloseRequested(async (event) => {
+		let isLocked = await invoke('check_lock');
+		if (isLocked) goto('/verify');
+	});
+
 	const onKeyDown = (event: KeyboardEvent) => {
 		if (event.repeat) return;
-
 		switch (event.key) {
 			case 'F5':
 				event.preventDefault();
