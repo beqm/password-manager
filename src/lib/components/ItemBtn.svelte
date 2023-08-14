@@ -21,6 +21,10 @@
 		await writeText(content.password);
 	};
 
+	const copyDescription = async () => {
+		await writeText(content.description);
+	};
+
 	const toggleDropDown = () => {
 		showDrop = !showDrop;
 	};
@@ -57,12 +61,21 @@
 			in:fade={{ duration: 200 }}
 			class="flex flex-col absolute top-6 left-1/2 transform -translate-x-1/2 bg-primary-900 border border-primary-700 text-xs lg:text-sm z-10"
 		>
-			<button class="hover:bg-primary-800 p-[7px]">Open</button>
 			<button on:click={editItem} class="hover:bg-primary-800 p-[7px]">Edit</button>
-			<button on:click={copyIdentifier} class="hover:bg-primary-800 p-[7px]"
-				>Copy Username/Email</button
-			>
-			<button on:click={copyPassword} class="hover:bg-primary-800 p-[7px]">Copy Password</button>
+			{#if content.identifier}
+				<button on:click={copyIdentifier} class="hover:bg-primary-800 p-[7px]"
+					>Copy Username/Email</button
+				>
+			{/if}
+			{#if content.password}
+				<button on:click={copyPassword} class="hover:bg-primary-800 p-[7px]">Copy Password</button>
+			{/if}
+
+			{#if content.description}
+				<button on:click={copyDescription} class="hover:bg-primary-800 p-[7px]">Copy Content</button
+				>
+			{/if}
+
 			<button on:click={deleteItem} class="hover:bg-primary-800 p-[7px]">Delete</button>
 		</div>
 	{/if}

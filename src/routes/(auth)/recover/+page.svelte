@@ -108,7 +108,7 @@
 			/>
 			<span class={`${cRecoverError}`}>{cRecoverMsg}</span>
 		</div>
-		<div class="w-full flex justify-end">
+		<div class="w-full flex justify-end mt-2">
 			<a
 				href="/login"
 				class="bg-primary-600 w-[25%] max-w-[100px] mr-4 text-center border-primary-700 active:scale-90 hover:bg-primary-700 border duration-200 rounded-md p-2"

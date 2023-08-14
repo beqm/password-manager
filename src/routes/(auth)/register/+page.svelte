@@ -204,7 +204,7 @@
 					bind:cError={cConfirmError}
 				/>
 			</div>
-			<div class="w-full flex justify-end">
+			<div class="w-full flex justify-end mt-2">
 				<button
 					type="submit"
 					class="bg-primary-600 w-[25%] max-w-[100px] text-center border-primary-700 active:scale-90 hover:bg-primary-700 border duration-200 rounded-md p-2"

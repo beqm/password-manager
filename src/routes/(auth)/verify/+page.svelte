@@ -92,7 +92,7 @@
 					bind:cError={cPasswordError}
 				/>
 			</div>
-			<div class="w-full flex justify-end">
+			<div class="w-full flex justify-end mt-2">
 				<button
 					on:click={logout}
 					type="button"
