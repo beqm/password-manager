@@ -6,7 +6,7 @@
     "distDir": "../build"
   },
   "package": {
-    "productName": "password_manager",
+    "productName": "password-manager",
     "version": "0.1.0"
   },
   "tauri": {
@@ -41,7 +41,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "password_manager",
+      "identifier": "password-manager",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
