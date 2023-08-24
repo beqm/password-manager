@@ -1,2 +1,3 @@
+- [] Minimize to tray option
 - [] Splashcreen
 - [] Settings Page
