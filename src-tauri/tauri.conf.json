@@ -6,7 +6,7 @@
     "distDir": "../build"
   },
   "package": {
-    "productName": "OffKeys",
+    "productName": "password_manager",
     "version": "0.1.0"
   },
   "tauri": {
@@ -41,7 +41,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "offkeys",
+      "identifier": "password_manager",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -72,7 +72,7 @@
         "height": 720,
         "minHeight": 600,
         "resizable": true,
-        "title": "OffKeys",
+        "title": "Password Manager",
         "width": 1138,
         "minWidth": 800
       }
