@@ -56,6 +56,33 @@ pub fn generate_recovery_code() -> String {
     base32::encode(alphabet, &hash)[0..=10].to_string()
 }
 
+pub fn decrypt_items(mut items: Vec<Items>, master_password: &str, recovery_code: &str) -> Vec<Items> {
+    for item in items.iter_mut() {
+        let pass = item.password.as_ref().unwrap();
+        let desc = item.description.as_ref().unwrap();
+
+        if pass.len() > 0 || desc.len() > 0 {
+            // Demonstration only, real scenario store the keys somewhere safe
+            let parsed_key = GenericArray::from_slice(master_password.as_bytes().get(..32).unwrap_or_default());
+            let cipher = XChaCha20Poly1305::new(&parsed_key);
+            let parsed_nonce = GenericArray::from_slice(recovery_code.as_bytes().get(..24).unwrap_or_default());
+
+            if pass.len() > 0 {
+                let serialized_pass: Vec<u8> = serde_json::from_str(&pass.replace('\'', "\"")).unwrap();
+                let decrypted_pass = cipher.decrypt(&parsed_nonce, serialized_pass.as_ref()).unwrap();
+                item.password = Some(String::from_utf8(decrypted_pass).unwrap());
+            }
+
+            if desc.len() > 0 {
+                let serialized_desc: Vec<u8> = serde_json::from_str(&desc.replace('\'', "\"")).unwrap();
+                let decrypted_desc = cipher.decrypt(&parsed_nonce, serialized_desc.as_ref()).unwrap();
+                item.description = Some(String::from_utf8(decrypted_desc).unwrap());
+            }
+        }
+    }
+    return items;
+}
+
 #[tauri::command]
 fn add_item(username: &str, title: &str, identify: &str, pass: &str, desc: &str, link: &str, _type: &str) -> String {
     let user = get_client(&username).unwrap();
@@ -63,6 +90,7 @@ fn add_item(username: &str, title: &str, identify: &str, pass: &str, desc: &str,
     let mut stringified_desc = "".to_string();
 
     if pass.len() > 0 || desc.len() > 0 {
+        // Demonstration only, real scenario store the keys somewhere safe
         let parsed_key = GenericArray::from_slice(user.master_password.as_bytes().get(..32).unwrap_or_default());
         let cipher = XChaCha20Poly1305::new(&parsed_key);
         let parsed_nonce = GenericArray::from_slice(user.recovery_code.as_bytes().get(..24).unwrap_or_default());
@@ -92,6 +120,7 @@ fn update_item(username: &str, item_id: i32, title: &str, identify: &str, pass: 
     let mut stringified_desc = "".to_string();
 
     if pass.len() > 0 || desc.len() > 0 {
+        // Demonstration only, real scenario store the keys somewhere safe
         let parsed_key = GenericArray::from_slice(user.master_password.as_bytes().get(..32).unwrap_or_default());
         let cipher = XChaCha20Poly1305::new(&parsed_key);
         let parsed_nonce = GenericArray::from_slice(user.recovery_code.as_bytes().get(..24).unwrap_or_default());
@@ -130,30 +159,14 @@ fn fetch_items(user_id: i32, username: &str) -> String {
     let user = get_client(&username).unwrap();
 
     match result {
-        Some(mut v) => {
-            for item in v.iter_mut() {
-                let pass = item.password.as_ref().unwrap();
-                let desc = item.description.as_ref().unwrap();
-                if pass.len() > 0 || desc.len() > 0 {
-                    let parsed_key = GenericArray::from_slice(user.master_password.as_bytes().get(..32).unwrap_or_default());
-                    let cipher = XChaCha20Poly1305::new(&parsed_key);
-                    let parsed_nonce = GenericArray::from_slice(user.recovery_code.as_bytes().get(..24).unwrap_or_default());
+        Some(v) => {
+            let decrypted_items = decrypt_items(v, &user.master_password, &user.recovery_code);
 
-                    if pass.len() > 0 {
-                        let serialized_pass: Vec<u8> = serde_json::from_str(&pass.replace('\'', "\"")).unwrap();
-                        let decrypted_pass = cipher.decrypt(&parsed_nonce, serialized_pass.as_ref()).unwrap();
-                        item.password = Some(String::from_utf8(decrypted_pass).unwrap());
-                    }
-
-                    if desc.len() > 0 {
-                        let serialized_desc: Vec<u8> = serde_json::from_str(&desc.replace('\'', "\"")).unwrap();
-                        let decrypted_desc = cipher.decrypt(&parsed_nonce, serialized_desc.as_ref()).unwrap();
-                        item.description = Some(String::from_utf8(decrypted_desc).unwrap());
-                    }
-                }
-            }
-
-            serde_json::to_string(&TauriResponse::<Vec<Items>> { data: v, status: 200 }).unwrap()
+            serde_json::to_string(&TauriResponse::<Vec<Items>> {
+                data: decrypted_items,
+                status: 200,
+            })
+            .unwrap()
         },
         None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
@@ -192,12 +205,13 @@ fn login(username: &str, master_password: &str) -> String {
 
             if password_match {
                 *USER.lock().unwrap() = c.username.to_string();
-                let items = get_items(&c.id);
+                let items = get_items(&c.id).unwrap();
+                let decrypted_items = decrypt_items(items, &c.master_password, &c.recovery_code);
 
                 let data = TauriClient {
                     id: c.id,
                     username: c.username,
-                    items,
+                    items: Some(decrypted_items),
                 };
 
                 serde_json::to_string(&TauriResponse {
@@ -248,13 +262,32 @@ fn change_password(username: &str, master_password: &str) -> String {
         Argon2,
     };
 
+    let user = get_client(username).unwrap();
+    let items = get_items(&user.id).unwrap();
+    let mut decrypted_items = decrypt_items(items, &user.master_password, &user.recovery_code);
+
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(master_password.as_bytes(), &salt).unwrap().to_string();
     let result = update_master_password(&username, &password_hash);
 
     match result {
-        Ok(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 200 }).unwrap(),
+        Ok(_) => {
+            for item in decrypted_items.iter_mut() {
+                let _ = update_item(
+                    username,
+                    item.id,
+                    &item.title.clone(),
+                    &item.identifier.clone().unwrap(),
+                    &item.password.clone().unwrap(),
+                    &item.description.clone().unwrap(),
+                    &item.link.clone().unwrap(),
+                    &item.type_,
+                    item.created_at,
+                );
+            }
+            serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 200 }).unwrap()
+        },
         Err(_) => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
     }
 }
