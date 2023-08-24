@@ -63,7 +63,7 @@
 
 		if (canRegister) {
 			let user: Client = JSON.parse(localStorage.getItem('client') || '');
-			let x = await invoke('add_item', {
+			await invoke('add_item', {
 				username: user.username,
 				title,
 				identify: usernameOrEmail,
@@ -77,7 +77,7 @@
 				userId: $ClientStore.id,
 				username: $ClientStore.username
 			});
-			console.log(items);
+
 			let data: TauriResponse = JSON.parse(items);
 			$ClientStore.items = data.data;
 			await localStorage.setItem('client', JSON.stringify($ClientStore));

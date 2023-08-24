@@ -1,6 +1,24 @@
 <script lang="ts">
 	import TableItem from '$lib/components/TableItem.svelte';
 	import ClientStore from '$lib/stores/ClientStore';
+	import { invoke } from '@tauri-apps/api';
+	import { onMount } from 'svelte';
+
+	let items: Item[] = [];
+	const fetch_items = async () => {
+		let items: string = await invoke('fetch_items', {
+			userId: $ClientStore.id,
+			username: $ClientStore.username
+		});
+
+		let data: TauriResponse = JSON.parse(items);
+
+		return data.data;
+	};
+
+	onMount(async () => {
+		items = await fetch_items();
+	});
 </script>
 
 {#if $ClientStore}
@@ -24,13 +42,11 @@
 					<div class="w-[15%] p-2" />
 				</div>
 				<div class="h-[90%] min-h-[200px] mt-2 overflow-y-scroll">
-					{#if $ClientStore}
-						{#each $ClientStore.items as item}
-							{#if item.type_ == 'note'}
-								<TableItem data={item} />
-							{/if}
-						{/each}
-					{/if}
+					{#each items as item}
+						{#if item.type_ == 'note'}
+							<TableItem data={item} />
+						{/if}
+					{/each}
 				</div>
 			</div>
 		</div>

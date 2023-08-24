@@ -39,7 +39,6 @@ pub struct TauriResponse<T> {
 pub struct TauriClient {
     id: i32,
     username: String,
-    items: Option<Vec<Items>>,
 }
 
 pub fn generate_recovery_code() -> String {
@@ -205,13 +204,10 @@ fn login(username: &str, master_password: &str) -> String {
 
             if password_match {
                 *USER.lock().unwrap() = c.username.to_string();
-                let items = get_items(&c.id).unwrap();
-                let decrypted_items = decrypt_items(items, &c.master_password, &c.recovery_code);
 
                 let data = TauriClient {
                     id: c.id,
                     username: c.username,
-                    items: Some(decrypted_items),
                 };
 
                 serde_json::to_string(&TauriResponse {
