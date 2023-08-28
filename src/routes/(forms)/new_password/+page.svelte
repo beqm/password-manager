@@ -153,7 +153,7 @@
 						on:input={bindValue}
 					/>
 					{#if visibility}
-						<button on:click={hidePassword}>
+						<button type="button" on:click={hidePassword}>
 							<svg
 								class="absolute right-[10px] top-[38px] hover:text-hover"
 								fill="currentColor"
@@ -166,7 +166,7 @@
 							>
 						</button>
 					{:else}
-						<button on:click={showPassword}>
+						<button type="button" on:click={showPassword}>
 							<svg
 								class="absolute right-[10px] top-[38px] hover:text-hover"
 								fill="currentColor"
@@ -179,8 +179,10 @@
 							>
 						</button>
 					{/if}
-					<button on:click={callGenerate} class="mr-auto mt-2 text-sm text-hover hover:text-accent"
-						>Generate Password</button
+					<button
+						type="button"
+						on:click={callGenerate}
+						class="mr-auto mt-2 text-sm text-hover hover:text-accent">Generate Password</button
 					>
 				</div>
 
