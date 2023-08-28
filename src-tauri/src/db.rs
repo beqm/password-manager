@@ -31,6 +31,7 @@ pub fn create_client(username: &str, master_password: &str, recovery_code: &str)
         master_password,
         recovery_code,
         app_lock: 0,
+        min_tray: 0,
     };
 
     let result = diesel::insert_or_ignore_into(client::table)
@@ -111,7 +112,34 @@ pub fn toggle_app_lock(user: Client) -> Result<Client, ClientError> {
 
     match result {
         Ok(c) => {
-            println!("[SUCCESS] setting app of: {:?} to: {:?}", &user.username, &inverted_value);
+            println!("[SUCCESS] toggling lock of: {:?} to: {:?}", &user.username, &inverted_value);
+            return Ok(c);
+        },
+        Err(_) => {
+            println!("[ERROR] something went wrong: {:?}", &user.username);
+            return Err(ClientError::ClientNotFound);
+        },
+    }
+}
+
+pub fn toggle_tray(user: Client) -> Result<Client, ClientError> {
+    use crate::schema::client::dsl::*;
+    let inverted_value: i32;
+
+    if user.min_tray == 0 {
+        inverted_value = 1
+    } else {
+        inverted_value = 0
+    }
+
+    let mut conn = establish_connection();
+    let result = diesel::update(client.filter(username.eq(&user.username)))
+        .set(min_tray.eq(inverted_value))
+        .get_result(&mut conn);
+
+    match result {
+        Ok(c) => {
+            println!("[SUCCESS] toggling stray of: {:?} to: {:?}", &user.username, &inverted_value);
             return Ok(c);
         },
         Err(_) => {
