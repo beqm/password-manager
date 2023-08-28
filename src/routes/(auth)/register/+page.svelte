@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { invoke } from '@tauri-apps/api';
-	import { slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import PasswordInput from '$lib/components/PasswordInput.svelte';
 	import TableBtn from '$lib/components/ItemLaunch.svelte';
 	import { onMount } from 'svelte';
@@ -139,7 +139,10 @@
 	class="absolute top-0 left-0 w-full h-full bg-primary-1000 overflow-hidden flex justify-center"
 >
 	{#if registered}
-		<div transition:slide class="flex flex-col w-[50%] lg:w-[30%] h-[70%] mt-40">
+		<div
+			transition:fly={{ y: 200, duration: 200 }}
+			class="flex flex-col w-[50%] lg:w-[30%] h-[70%] mt-40"
+		>
 			<div class="flex flex-col items-center justify-center w-full mb-10">
 				<h1 class="flex text-3xl font-bold mt-10">Success!</h1>
 				<span class="text-2xl mt-2">{timer}</span>
