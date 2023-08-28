@@ -7,6 +7,7 @@ diesel::table! {
         master_password -> Text,
         recovery_code -> Text,
         app_lock -> Integer,
+        min_tray -> Integer,
     }
 }
 

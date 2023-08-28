@@ -12,6 +12,7 @@ pub struct Client {
     pub master_password: String,
     pub recovery_code: String,
     pub app_lock: i32,
+    pub min_tray: i32,
 }
 
 #[derive(Insertable)]
@@ -21,6 +22,7 @@ pub struct NewClient<'a> {
     pub master_password: &'a str,
     pub recovery_code: &'a str,
     pub app_lock: i32,
+    pub min_tray: i32,
 }
 
 #[derive(Debug, Queryable, Selectable, Serialize, Deserialize)]
