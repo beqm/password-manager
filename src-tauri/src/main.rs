@@ -18,7 +18,7 @@ use chacha20poly1305::{
     XChaCha20Poly1305,
 };
 
-use crate::db::toggle_app_lock;
+use crate::db::{toggle_app_lock, toggle_tray};
 
 mod db;
 mod models;
@@ -26,7 +26,7 @@ mod schema;
 
 lazy_static! {
     static ref USER: Mutex<String> = Mutex::new("NULL".to_string());
-    static ref LOCK: Mutex<i32> = Mutex::new(0);
+    static ref TRAY: Mutex<i32> = Mutex::new(0);
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -155,19 +155,23 @@ fn remove_item(item_id: i32) -> String {
 #[tauri::command]
 fn fetch_items(user_id: i32, username: &str) -> String {
     let result = get_items(&user_id);
-    let user = get_client(&username).unwrap();
+    let user = get_client(&username);
 
-    match result {
-        Some(v) => {
-            let decrypted_items = decrypt_items(v, &user.master_password, &user.recovery_code);
+    if let Ok(c) = user {
+        match result {
+            Some(v) => {
+                let decrypted_items = decrypt_items(v, &c.master_password, &c.recovery_code);
 
-            serde_json::to_string(&TauriResponse::<Vec<Items>> {
-                data: decrypted_items,
-                status: 200,
-            })
-            .unwrap()
-        },
-        None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+                serde_json::to_string(&TauriResponse::<Vec<Items>> {
+                    data: decrypted_items,
+                    status: 200,
+                })
+                .unwrap()
+            },
+            None => serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap(),
+        }
+    } else {
+        serde_json::to_string(&TauriResponse::<Option<String>> { data: None, status: 400 }).unwrap()
     }
 }
 
@@ -204,6 +208,7 @@ fn login(username: &str, master_password: &str) -> String {
 
             if password_match {
                 *USER.lock().unwrap() = c.username.to_string();
+                *TRAY.lock().unwrap() = c.min_tray;
 
                 let data = TauriClient {
                     id: c.id,
@@ -334,10 +339,12 @@ fn main() {
     println!("[INFO] APP INITIALIZED");
     let show = CustomMenuItem::new("open".to_string(), "Open");
     let lock = CustomMenuItem::new("lock".to_string(), "Lock");
+    let minimize_tray = CustomMenuItem::new("tray".to_string(), "Minimize to Tray");
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let tray_menu = SystemTrayMenu::new()
         .add_item(show)
         .add_item(lock)
+        .add_item(minimize_tray)
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(quit);
     let system_tray = SystemTray::new().with_menu(tray_menu);
@@ -362,6 +369,12 @@ fn main() {
                         toggle_app_lock(c).unwrap();
                     }
                 },
+                "tray" => {
+                    let user = get_client(&USER.lock().unwrap());
+                    if let Ok(c) = user {
+                        toggle_tray(c).unwrap();
+                    }
+                },
                 "quit" => {
                     std::process::exit(0);
                 },
@@ -370,11 +383,20 @@ fn main() {
             _ => {
                 let user = get_client(&USER.lock().unwrap());
                 if let Ok(c) = user {
-                    let item_handle = app.tray_handle().get_item("lock");
+                    let lock_handle = app.tray_handle().get_item("lock");
+                    let mtray_handle = app.tray_handle().get_item("tray");
                     if c.app_lock == 1 {
-                        item_handle.set_title("Lock \u{2714}").unwrap();
+                        lock_handle.set_title("Lock \u{2714}").unwrap();
                     } else {
-                        item_handle.set_title("Lock").unwrap();
+                        lock_handle.set_title("Lock").unwrap();
+                    }
+
+                    if c.min_tray == 1 {
+                        *TRAY.lock().unwrap() = 1;
+                        mtray_handle.set_title("Minimize to Tray \u{2714}").unwrap();
+                    } else {
+                        *TRAY.lock().unwrap() = 0;
+                        mtray_handle.set_title("Minimize to Tray").unwrap();
                     }
                 }
             },
@@ -389,9 +411,13 @@ fn main() {
             tauri::RunEvent::WindowEvent { label, event: win_event, .. } => match win_event {
                 tauri::WindowEvent::CloseRequested { api, .. } => {
                     // Minimize to tray
-                    let win = app.get_window(label.as_str()).unwrap();
-                    win.hide().unwrap();
-                    api.prevent_close();
+                    if *TRAY.lock().unwrap() == 1 {
+                        let win = app.get_window(label.as_str()).unwrap();
+                        win.hide().unwrap();
+                        api.prevent_close();
+                    } else {
+                        app.exit(0)
+                    }
                 },
 
                 _ => {},
